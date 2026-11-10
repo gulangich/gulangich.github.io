@@ -124,9 +124,130 @@
   .legend span { display: flex; align-items: center; gap: 5px; }
   .legend .dot { width: 11px; height: 11px; border-radius: 3px; }
   .legend .g { background: #00ff88; } .legend .b { background: #4488ff; } .legend .w { background: #222; border: 1px solid #555; }
+ /* ====== СИСТЕМА ТЕМ ====== */
+:root {
+  --bg1: #0a0a1a; --bg2: #000;
+  --accent: #00ff88; --accent-dim: rgba(0,255,136,.3);
+  --accent2: #88aaff; --accent2-dim: rgba(136,170,255,.15);
+  --warn: #ffaa00; --danger: #ff4444;
+  --panel: rgba(10,20,30,.92);
+  --key-bg: #101820; --key-border: #1f4d3a;
+}
+body, .container, .version-card, .diff-btn, .btn, .key, .cell, .digit-v1, .digit-v2,
+.input-digit, .input-area-v1, .message, .attempts, .subtitle, .legend, .tag,
+.version-card .v-badge, .version-card .v-title { transition: background .3s, color .3s, border-color .3s, box-shadow .3s; }
+
+/* ---- МАТРИЦА ---- */
+body[data-theme="matrix"] { --bg1:#000; --bg2:#000; --accent:#00ff41; --accent-dim:rgba(0,255,65,.3); --accent2:#33ff77; --accent2-dim:rgba(51,255,119,.15); --panel:rgba(0,10,0,.95); --key-bg:#001a00; --key-border:#004d00; }
+body[data-theme="matrix"] .container { box-shadow: 0 0 40px rgba(0,255,65,.4), inset 0 0 30px rgba(0,255,65,.08); }
+body[data-theme="matrix"] h1 { font-family: 'Courier New', monospace; letter-spacing: 3px; }
+body[data-theme="matrix"] .digit-v1.correct, body[data-theme="matrix"] .digit-v2.correct, body[data-theme="matrix"] .btn { box-shadow: 0 0 20px #00ff41; }
+#matrixCanvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0; transition: opacity .5s; pointer-events:none; }
+body[data-theme="matrix"] #matrixCanvas { opacity: .35; }
+
+/* ---- КИБЕРПАНК ---- */
+body[data-theme="cyber"] { --bg1:#1a0033; --bg2:#0a001a; --accent:#ff00aa; --accent-dim:rgba(255,0,170,.3); --accent2:#00ffff; --accent2-dim:rgba(0,255,255,.15); --warn:#ffdd00; --panel:rgba(20,0,40,.92); --key-bg:#2a0044; --key-border:#660066; }
+body[data-theme="cyber"] .container { background: linear-gradient(135deg, rgba(40,0,60,.92), rgba(10,0,30,.92)); box-shadow: 0 0 40px rgba(255,0,170,.4), 0 0 80px rgba(0,255,255,.15); border-color: #ff00aa; }
+body[data-theme="cyber"] h1 { text-shadow: 2px 0 #00ffff, -2px 0 #ff00aa; letter-spacing: 3px; }
+body[data-theme="cyber"] .subtitle { color: #00ffff; }
+body[data-theme="cyber"] .btn { background: linear-gradient(90deg,#ff00aa,#00ffff); color:#000; }
+body[data-theme="cyber"] .digit-v1.correct, body[data-theme="cyber"] .digit-v2.correct { background: #ff00aa; box-shadow: 0 0 20px #ff00aa; }
+body[data-theme="cyber"] .digit-v1.misplaced, body[data-theme="cyber"] .digit-v2.misplaced { background: #00ffff; color:#000; box-shadow: 0 0 20px #00ffff; }
+
+/* ---- РЕТРО ТЕРМИНАЛ ---- */
+body[data-theme="retro"] { --bg1:#1a0f00; --bg2:#0a0500; --accent:#ffb000; --accent-dim:rgba(255,176,0,.3); --accent2:#ff8800; --accent2-dim:rgba(255,136,0,.15); --warn:#ffdd00; --panel:rgba(30,20,0,.95); --key-bg:#2a1a00; --key-border:#664400; }
+body[data-theme="retro"] .container { box-shadow: 0 0 40px rgba(255,176,0,.3), inset 0 0 40px rgba(0,0,0,.5); border-color: #ffb000; background: radial-gradient(ellipse at center, rgba(40,25,0,.95), rgba(10,5,0,.98)); }
+body[data-theme="retro"] .container::before { content:''; position:absolute; inset:0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.15) 0px, rgba(0,0,0,.15) 1px, transparent 1px, transparent 3px); pointer-events:none; border-radius:15px; }
+body[data-theme="retro"] .container { position: relative; overflow: hidden; }
+body[data-theme="retro"] h1 { text-shadow: 0 0 8px #ffb000; }
+body[data-theme="retro"] .digit-v1.correct, body[data-theme="retro"] .digit-v2.correct { background:#ffb000; color:#000; box-shadow: 0 0 15px #ffb000; }
+
+/* ---- ПАНЕЛЬ ТЕМ ---- */
+.theme-toggle {
+  position: absolute; top: 15px; right: 15px;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: transparent; border: 2px solid var(--accent);
+  color: var(--accent); font-size: 1.3em; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation; z-index: 10;
+}
+.theme-toggle:active { background: var(--accent-dim); transform: scale(.92); }
+.container { position: relative; }
+.theme-modal {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.theme-modal.active { display: flex; }
+.theme-modal-box {
+  background: var(--panel); border: 2px solid var(--accent);
+  border-radius: 15px; padding: 22px; max-width: 380px; width: 100%;
+  box-shadow: 0 0 40px var(--accent-dim);
+}
+.theme-modal-box h2 { color: var(--accent); text-align: center; margin-bottom: 16px; font-size: 1.2em; letter-spacing: 2px; }
+.theme-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; margin-bottom: 10px;
+  background: #111; border: 2px solid #334; border-radius: 10px;
+  cursor: pointer; font-family: inherit; color: inherit; width: 100%;
+  touch-action: manipulation;
+}
+.theme-option:active { transform: scale(.98); }
+.theme-option.active { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-dim); }
+.theme-preview {
+  width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 1.2em;
+}
+.tp-classic { background: linear-gradient(135deg,#0a0a1a,#000); color:#00ff88; border:1px solid #00ff88; }
+.tp-matrix { background: #000; color:#00ff41; border:1px solid #00ff41; }
+.tp-cyber { background: linear-gradient(135deg,#ff00aa,#00ffff); color:#000; }
+.tp-retro { background: #1a0f00; color:#ffb000; border:1px solid #ffb000; }
+.theme-name { font-weight: bold; font-size: .95em; }
+.theme-desc { font-size: .7em; color: #888; margin-top: 2px; }
+.theme-close {
+  width: 100%; padding: 11px; margin-top: 8px;
+  background: transparent; color: var(--accent); border: 2px solid var(--accent);
+  border-radius: 8px; font-family: inherit; font-weight: bold; cursor: pointer;
+}
 </style>
 </head>
 <body>
+ <canvas id="matrixCanvas"></canvas>
+<div class="theme-modal" id="themeModal">
+  <div class="theme-modal-box">
+    <h2>🎨 ВЫБЕРИ ТЕМУ</h2>
+    <button class="theme-option" data-theme="">
+      <div class="theme-preview tp-classic">▶</div>
+      <div style="text-align:left;">
+        <div class="theme-name">КЛАССИКА</div>
+        <div class="theme-desc">Зелёный хакерский терминал</div>
+      </div>
+    </button>
+    <button class="theme-option" data-theme="matrix">
+      <div class="theme-preview tp-matrix">01</div>
+      <div style="text-align:left;">
+        <div class="theme-name">МАТРИЦА</div>
+        <div class="theme-desc">Падающий код + ярко-зелёный</div>
+      </div>
+    </button>
+    <button class="theme-option" data-theme="cyber">
+      <div class="theme-preview tp-cyber">◢</div>
+      <div style="text-align:left;">
+        <div class="theme-name">КИБЕРПАНК</div>
+        <div class="theme-desc">Неоновый розово-голубой</div>
+      </div>
+    </button>
+    <button class="theme-option" data-theme="retro">
+      <div class="theme-preview tp-retro">▮</div>
+      <div style="text-align:left;">
+        <div class="theme-name">РЕТРО</div>
+        <div class="theme-desc">Янтарный ЭЛТ-монитор 80-х</div>
+      </div>
+    </button>
+    <button class="theme-close" id="themeClose">ЗАКРЫТЬ</button>
+  </div>
+</div>
 <div class="container">
    <div class="screen active" id="mainMenu">
     <h1>🔓 ВЗЛОМАЙ ТЕЛЕФОН</h1>
@@ -482,6 +603,76 @@ const GameV2 = (() => {
   });
   return { toMenu };
 })();
+ /* ====== СИСТЕМА ТЕМ ====== */
+const themeToggle = document.getElementById('themeToggle');
+const themeModal = document.getElementById('themeModal');
+const themeClose = document.getElementById('themeClose');
+const themeOptions = document.querySelectorAll('.theme-option');
+
+function applyTheme(theme) {
+  if (theme) document.body.setAttribute('data-theme', theme);
+  else document.body.removeAttribute('data-theme');
+  themeOptions.forEach(opt => {
+    opt.classList.toggle('active', (opt.dataset.theme || '') === (theme || ''));
+  });
+  try { localStorage.setItem('hackTheme', theme || ''); } catch(e) {}
+  if (theme === 'matrix') startMatrix(); else stopMatrix();
+}
+
+function loadTheme() {
+  try {
+    const saved = localStorage.getItem('hackTheme') || '';
+    applyTheme(saved);
+  } catch(e) { applyTheme(''); }
+}
+
+themeToggle.addEventListener('click', () => themeModal.classList.add('active'));
+themeClose.addEventListener('click', () => themeModal.classList.remove('active'));
+themeModal.addEventListener('click', e => { if (e.target === themeModal) themeModal.classList.remove('active'); });
+themeOptions.forEach(opt => {
+  opt.addEventListener('click', () => {
+    applyTheme(opt.dataset.theme || '');
+    themeModal.classList.remove('active');
+  });
+});
+
+/* ====== ЭФФЕКТ «МАТРИЦА» (canvas) ====== */
+const matrixCanvas = document.getElementById('matrixCanvas');
+const mctx = matrixCanvas.getContext('2d');
+let matrixAnim = null;
+const matrixChars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF@#$%&';
+
+function resizeMatrix() {
+  matrixCanvas.width = window.innerWidth;
+  matrixCanvas.height = window.innerHeight;
+}
+function startMatrix() {
+  if (matrixAnim) return;
+  resizeMatrix();
+  const cols = Math.floor(matrixCanvas.width / 16);
+  const drops = Array(cols).fill(0).map(() => Math.random() * -50);
+  function draw() {
+    mctx.fillStyle = 'rgba(0,0,0,0.08)';
+    mctx.fillRect(0,0,matrixCanvas.width,matrixCanvas.height);
+    mctx.fillStyle = '#00ff41';
+    mctx.font = '15px monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const ch = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+      mctx.fillText(ch, i * 16, drops[i] * 16);
+      if (drops[i] * 16 > matrixCanvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+    matrixAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+function stopMatrix() {
+  if (matrixAnim) { cancelAnimationFrame(matrixAnim); matrixAnim = null; }
+  mctx.clearRect(0,0,matrixCanvas.width,matrixCanvas.height);
+}
+window.addEventListener('resize', () => { if (document.body.getAttribute('data-theme') === 'matrix') resizeMatrix(); });
+
+loadTheme();
 </script>
 </body>
 </html>
