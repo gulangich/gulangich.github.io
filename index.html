@@ -2,188 +2,179 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🔓 Взломай телефон</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
     font-family: 'Courier New', monospace;
     background: radial-gradient(circle at center, #0a0a1a 0%, #000 100%);
     color: #00ff88;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    display: flex; justify-content: center; align-items: center;
+    padding: 12px;
+    user-select: none; -webkit-user-select: none;
   }
   .container {
-    background: rgba(10, 20, 30, 0.9);
+    background: rgba(10, 20, 30, 0.92);
     border: 2px solid #00ff88;
     border-radius: 15px;
-    padding: 30px;
-    max-width: 420px;
-    width: 100%;
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.3), inset 0 0 20px rgba(0, 255, 136, 0.05);
+    padding: 22px;
+    max-width: 440px; width: 100%;
+    box-shadow: 0 0 30px rgba(0,255,136,.3), inset 0 0 20px rgba(0,255,136,.05);
   }
-  h1 {
-    text-align: center;
-    font-size: 1.8em;
-    margin-bottom: 10px;
-    text-shadow: 0 0 10px #00ff88;
-    letter-spacing: 2px;
+  h1 { text-align: center; font-size: 1.45em; margin-bottom: 6px; text-shadow: 0 0 10px #00ff88; letter-spacing: 1px; }
+  .subtitle { text-align: center; color: #88aaff; font-size: .8em; margin-bottom: 18px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .version-grid { display: grid; gap: 14px; margin-top: 10px; }
+  .version-card {
+    background: linear-gradient(135deg, #0d1a22 0%, #0a1418 100%);
+    border: 2px solid #00ff88; border-radius: 12px;
+    padding: 18px; cursor: pointer; transition: .2s;
+    text-align: left; font-family: inherit; color: inherit;
+    touch-action: manipulation;
   }
-  .subtitle {
-    text-align: center;
-    color: #88aaff;
-    font-size: 0.85em;
-    margin-bottom: 20px;
+  .version-card:active { transform: scale(.98); background: rgba(0,255,136,.08); }
+  .version-card .v-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .version-card .v-title { font-size: 1.15em; font-weight: bold; color: #00ff88; }
+  .version-card .v-badge {
+    font-size: .7em; padding: 3px 8px; border-radius: 10px;
+    background: rgba(0,255,136,.15); color: #00ff88; border: 1px solid #00ff88;
   }
-  .attempts {
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 1.1em;
-    color: #ffaa00;
+  .version-card .v-desc { font-size: .82em; color: #aac; line-height: 1.4; }
+  .version-card .v-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .version-card .tag {
+    font-size: .65em; padding: 2px 7px; border-radius: 8px;
+    background: #1a2a30; color: #88aaff; border: 1px solid #2a4a50;
   }
-  .history {
-    margin-bottom: 20px;
-    min-height: 50px;
-  }
-  .attempt-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 8px;
-    animation: slideIn 0.4s ease;
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .digit {
-    width: 50px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8em;
-    font-weight: bold;
-    border: 2px solid #334;
-    border-radius: 8px;
-    background: #111;
-    transition: all 0.3s;
-  }
-  .digit.correct {
-    background: #00ff88;
-    color: #000;
-    border-color: #00ff88;
-    box-shadow: 0 0 15px #00ff88;
-  }
-  .digit.misplaced {
-    background: #4488ff;
-    color: #fff;
-    border-color: #4488ff;
-    box-shadow: 0 0 15px #4488ff;
-  }
-  .digit.wrong {
-    background: #222;
-    color: #555;
-  }
-  .input-area {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 15px;
-  }
+  .version-card.v2 { border-color: #ffaa00; }
+  .version-card.v2 .v-title { color: #ffaa00; }
+  .version-card.v2 .v-badge { background: rgba(255,170,0,.15); color: #ffaa00; border-color: #ffaa00; }
+  .attempts { text-align: center; margin-bottom: 12px; font-size: .95em; color: #ffaa00; }
+  .history { margin-bottom: 12px; max-height: 210px; overflow-y: auto; }
+  .attempt-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 7px; animation: slideIn .35s ease; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  .input-area-v1 { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; }
   .input-digit {
-    width: 50px;
-    height: 60px;
-    text-align: center;
-    font-size: 1.8em;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    background: #111;
-    color: #00ff88;
-    border: 2px solid #00ff88;
-    border-radius: 8px;
-    outline: none;
+    width: 50px; height: 60px; text-align: center; font-size: 1.8em;
+    font-family: 'Courier New', monospace; font-weight: bold;
+    background: #111; color: #00ff88; border: 2px solid #00ff88;
+    border-radius: 8px; outline: none;
   }
-  .input-digit:focus {
-    box-shadow: 0 0 10px #00ff88;
+  .input-digit:focus { box-shadow: 0 0 10px #00ff88; }
+  .digit-v1 {
+    width: 50px; height: 60px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.8em; font-weight: bold; border: 2px solid #334;
+    border-radius: 8px; background: #111;
   }
+  .digit-v1.correct { background: #00ff88; color: #000; border-color: #00ff88; box-shadow: 0 0 15px #00ff88; }
+  .digit-v1.misplaced { background: #4488ff; color: #fff; border-color: #4488ff; box-shadow: 0 0 15px #4488ff; }
+  .digit-v1.wrong { background: #222; color: #555; }
+  .cell, .digit-v2 {
+    flex: 1 1 0; max-width: 44px; aspect-ratio: 5 / 6;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(1.05em, 5vw, 1.5em); font-weight: bold;
+    border: 2px solid #334; border-radius: 8px; background: #111;
+  }
+  .digit-v2.correct { background: #00ff88; color: #000; border-color: #00ff88; box-shadow: 0 0 12px #00ff88; }
+  .digit-v2.misplaced { background: #4488ff; color: #fff; border-color: #4488ff; box-shadow: 0 0 12px #4488ff; }
+  .digit-v2.wrong { background: #1a1a1a; color: #555; }
+  .input-area-v2 { display: flex; gap: 5px; justify-content: center; margin-bottom: 12px; }
+  .cell { border-color: #00ff88; color: #00ff88; }
+  .cell.active { box-shadow: 0 0 12px #00ff88; background: rgba(0,255,136,.08); }
+  .cell.active::after { content: '_'; animation: blink 1s steps(1) infinite; }
+  .cell.filled::after { content: none; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .shake { animation: shake .3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 10px; }
+  .key {
+    padding: 14px 0; font-family: inherit; font-size: 1.35em; font-weight: bold;
+    background: #101820; color: #00ff88; border: 2px solid #1f4d3a; border-radius: 10px;
+    cursor: pointer; transition: .1s; touch-action: manipulation;
+  }
+  .key:active { background: #00ff88; color: #000; transform: scale(.95); }
+  .key.fn { color: #ffaa00; border-color: #4d3a1f; font-size: 1.15em; }
+  .key.fn:active { background: #ffaa00; color: #000; }
+  .key.absent { color: #3a3a3a; border-color: #222; text-decoration: line-through; }
+  .key.dead { opacity: .35; pointer-events: none; }
+  .difficulty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+  .diff-btn {
+    padding: 14px 8px; background: #111; border: 2px solid #00ff88; border-radius: 10px;
+    color: #00ff88; font-family: inherit; font-weight: bold; cursor: pointer;
+    transition: .15s; touch-action: manipulation;
+  }
+  .diff-btn:active { background: rgba(0,255,136,.2); transform: scale(.97); }
+  .diff-btn .num { display: block; font-size: 1.7em; }
+  .diff-btn .label { display: block; font-size: .7em; color: #88aaff; font-weight: normal; margin-top: 3px; }
   .btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 1.1em;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    background: #00ff88;
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    letter-spacing: 2px;
-    transition: all 0.2s;
+    width: 100%; padding: 13px; font-size: 1em; font-family: inherit; font-weight: bold;
+    background: #00ff88; color: #000; border: none; border-radius: 8px;
+    cursor: pointer; letter-spacing: 2px; transition: .15s; touch-action: manipulation;
   }
-  .btn:hover:not(:disabled) {
-    background: #00cc6e;
-    box-shadow: 0 0 20px #00ff88;
-  }
-  .btn:disabled {
-    background: #333;
-    color: #666;
-    cursor: not-allowed;
-  }
-  .btn-secondary {
-    background: transparent;
-    color: #00ff88;
-    border: 2px solid #00ff88;
-    margin-top: 10px;
-  }
-  .btn-secondary:hover {
-    background: rgba(0, 255, 136, 0.1);
-  }
-  .message {
-    text-align: center;
-    margin: 15px 0;
-    font-size: 1.2em;
-    min-height: 30px;
-    font-weight: bold;
-  }
+  .btn:active:not(:disabled) { background: #00cc6e; transform: scale(.98); }
+  .btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: #00ff88; border: 2px solid #00ff88; margin-top: 8px; }
+  .message { text-align: center; margin: 12px 0 4px; font-size: 1em; min-height: 26px; font-weight: bold; }
+  .message.warn { color: #ffaa00; }
   .message.win { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
   .message.lose { color: #ff4444; text-shadow: 0 0 10px #ff4444; }
-  .legend {
-    display: flex;
-    justify-content: space-around;
-    font-size: 0.75em;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px dashed #334;
-    color: #888;
-  }
+  .legend { display: flex; justify-content: space-around; font-size: .68em; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #334; color: #888; }
   .legend span { display: flex; align-items: center; gap: 5px; }
-  .legend .dot {
-    width: 12px; height: 12px; border-radius: 3px;
-  }
-  .legend .g { background: #00ff88; }
-  .legend .b { background: #4488ff; }
-  .legend .w { background: #222; border: 1px solid #555; }
+  .legend .dot { width: 11px; height: 11px; border-radius: 3px; }
+  .legend .g { background: #00ff88; } .legend .b { background: #4488ff; } .legend .w { background: #222; border: 1px solid #555; }
 </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
+   <div class="screen active" id="mainMenu">
     <h1>🔓 ВЗЛОМАЙ ТЕЛЕФОН</h1>
-    <div class="subtitle">Угадай 4-значный код за 5 попыток</div>
-    <div class="attempts">Попыток осталось: <span id="attemptsLeft">5</span></div>
-    <div class="history" id="history"></div>
-    <div class="input-area" id="inputArea">
+    <div class="subtitle">Выбери версию игры</div>
+    <div class="version-grid">
+      <button class="version-card v1" data-version="1">
+        <div class="v-head">
+          <span class="v-title">ВЕРСИЯ 1.0 · Классика</span>
+          <span class="v-badge">Оригинал</span>
+        </div>
+        <div class="v-desc">Первая версия игры. Угадай 4-значный код за 5 попыток. Используй системную клавиатуру телефона.</div>
+        <div class="v-tags">
+          <span class="tag">4 цифры</span>
+          <span class="tag">5 попыток</span>
+          <span class="tag">системная клавиатура</span>
+        </div>
+      </button>
+      <button class="version-card v2" data-version="2">
+        <div class="v-head">
+          <span class="v-title">ВЕРСИЯ 2.0 · Продвинутая</span>
+          <span class="v-badge">Новое</span>
+        </div>
+        <div class="v-desc">Выбор сложности (3–6 цифр), встроенная хакерская клавиатура, подсветка использованных цифр и вибро-отклик.</div>
+        <div class="v-tags">
+          <span class="tag">3–6 цифр</span>
+          <span class="tag">экранная клавиатура</span>
+          <span class="tag">вибро</span>
+          <span class="tag">подсказки</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="screen" id="v1Screen">
+    <h1>🔓 ВЗЛОМАЙ ТЕЛЕФОН</h1>
+    <div class="subtitle">Версия 1.0 · Классика</div>
+    <div class="attempts">Попыток осталось: <span id="v1AttemptsLeft">5</span></div>
+    <div class="history" id="v1History"></div>
+    <div class="input-area-v1" id="v1InputArea">
       <input type="text" class="input-digit" maxlength="1" data-idx="0" inputmode="numeric">
       <input type="text" class="input-digit" maxlength="1" data-idx="1" inputmode="numeric">
       <input type="text" class="input-digit" maxlength="1" data-idx="2" inputmode="numeric">
       <input type="text" class="input-digit" maxlength="1" data-idx="3" inputmode="numeric">
     </div>
-    <button class="btn" id="checkBtn">ПРОВЕРИТЬ КОД</button>
-    <div class="message" id="message"></div>
-    <button class="btn btn-secondary" id="newGameBtn">НОВАЯ ИГРА</button>
+    <button class="btn" id="v1CheckBtn">ПРОВЕРИТЬ КОД</button>
+    <div class="message" id="v1Message"></div>
+    <button class="btn btn-secondary" id="v1NewBtn">НОВАЯ ИГРА</button>
+    <button class="btn btn-secondary" id="v1BackBtn">← К ВЫБОРУ ВЕРСИИ</button>
     <div class="legend">
       <span><span class="dot g"></span>на месте</span>
       <span><span class="dot b"></span>не там</span>
@@ -191,137 +182,296 @@
     </div>
   </div>
 
+  <div class="screen" id="v2Screen">
+    <h1>🔓 ВЗЛОМАЙ ТЕЛЕФОН</h1>
+    <div class="subtitle">Версия 2.0 · Продвинутая</div>
+    <div id="v2Menu">
+      <p style="text-align:center; margin: 14px 0; color:#aaa; font-size:.88em;">Выбери длину секретного кода:</p>
+      <div class="difficulty-grid">
+        <button class="diff-btn" data-length="3"><span class="num">3</span><span class="label">Новичок · 5 попыток</span></button>
+        <button class="diff-btn" data-length="4"><span class="num">4</span><span class="label">Обычный · 6 попыток</span></button>
+        <button class="diff-btn" data-length="5"><span class="num">5</span><span class="label">Сложный · 7 попыток</span></button>
+        <button class="diff-btn" data-length="6"><span class="num">6</span><span class="label">Хардкор · 8 попыток</span></button>
+      </div>
+      <button class="btn btn-secondary" id="v2BackBtn">← К ВЫБОРУ ВЕРСИИ</button>
+    </div>
+    <div id="v2Game" style="display:none;">
+      <div class="attempts">Попыток осталось: <span id="v2AttemptsLeft">5</span></div>
+      <div class="history" id="v2History"></div>
+      <div class="input-area-v2" id="v2InputArea"></div>
+      <div class="keypad" id="v2Keypad">
+        <button class="key" data-key="1">1</button>
+        <button class="key" data-key="2">2</button>
+        <button class="key" data-key="3">3</button>
+        <button class="key" data-key="4">4</button>
+        <button class="key" data-key="5">5</button>
+        <button class="key" data-key="6">6</button>
+        <button class="key" data-key="7">7</button>
+        <button class="key" data-key="8">8</button>
+        <button class="key" data-key="9">9</button>
+        <button class="key fn" data-key="back">⌫</button>
+        <button class="key" data-key="0">0</button>
+        <button class="key fn" data-key="clear">C</button>
+      </div>
+      <button class="btn" id="v2CheckBtn">ПРОВЕРИТЬ КОД</button>
+      <div class="message" id="v2Message"></div>
+      <button class="btn btn-secondary" id="v2MenuBtn">СМЕНИТЬ СЛОЖНОСТЬ</button>
+      <button class="btn btn-secondary" id="v2BackBtn2">← К ВЫБОРУ ВЕРСИИ</button>
+      <div class="legend">
+        <span><span class="dot g"></span>на месте</span>
+        <span><span class="dot b"></span>не там</span>
+        <span><span class="dot w"></span>нет в коде</span>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
-  const CODE_LENGTH = 4;
-  const MAX_ATTEMPTS = 5;
-  let secretCode = [];
-  let attempts = 0;
-  let gameOver = false;
+const screens = {
+  main: document.getElementById('mainMenu'),
+  v1:   document.getElementById('v1Screen'),
+  v2:   document.getElementById('v2Screen'),
+};
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.remove('active'));
+  screens[name].classList.add('active');
+}
+document.querySelectorAll('.version-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const v = card.dataset.version;
+    if (v === '1') { GameV1.reset(); showScreen('v1'); }
+    else           { GameV2.toMenu(); showScreen('v2'); }
+  });
+});
+document.getElementById('v1BackBtn').addEventListener('click', () => showScreen('main'));
+document.getElementById('v2BackBtn').addEventListener('click', () => showScreen('main'));
+document.getElementById('v2BackBtn2').addEventListener('click', () => showScreen('main'));
 
-  function generateCode() {
-    const digits = [0,1,2,3,4,5,6,7,8,9];
-    const code = [];
-    for (let i = 0; i < CODE_LENGTH; i++) {
-      const idx = Math.floor(Math.random() * digits.length);
-      code.push(digits.splice(idx, 1)[0]);
-    }
+const GameV1 = (() => {
+  const LEN = 4, MAX = 5;
+  let secret = [], attempts = 0, over = false;
+  const $ = id => document.getElementById(id);
+  function gen() {
+    const pool = [0,1,2,3,4,5,6,7,8,9], code = [];
+    for (let i = 0; i < LEN; i++) code.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
     return code;
   }
-
-  function checkGuess(guess) {
-    const result = Array(CODE_LENGTH).fill('wrong');
-    // Сначала ищем точные совпадения
-    for (let i = 0; i < CODE_LENGTH; i++) {
-      if (guess[i] === secretCode[i]) {
-        result[i] = 'correct';
+  function check(g) {
+    const r = Array(LEN).fill('wrong');
+    for (let i = 0; i < LEN; i++) if (g[i] === secret[i]) r[i] = 'correct';
+    for (let i = 0; i < LEN; i++) {
+      if (r[i] === 'correct') continue;
+      for (let j = 0; j < LEN; j++) {
+        if (i !== j && r[j] !== 'correct' && g[i] === secret[j]) { r[i] = 'misplaced'; break; }
       }
     }
-    // Потом ищем цифры, которые есть, но не на своём месте
-    for (let i = 0; i < CODE_LENGTH; i++) {
-      if (result[i] === 'correct') continue;
-      for (let j = 0; j < CODE_LENGTH; j++) {
-        if (i !== j && result[j] !== 'correct' && guess[i] === secretCode[j]) {
-          result[i] = 'misplaced';
-          break;
-        }
-      }
-    }
-    return result;
+    return r;
   }
-
-  function renderAttempt(guess, result) {
-    const history = document.getElementById('history');
+  function render(g, r) {
     const row = document.createElement('div');
     row.className = 'attempt-row';
-    for (let i = 0; i < CODE_LENGTH; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'digit ' + result[i];
-      cell.textContent = guess[i];
-      row.appendChild(cell);
-    }
-    history.appendChild(row);
-  }
-
-  function endGame(won) {
-    gameOver = true;
-    const msg = document.getElementById('message');
-    if (won) {
-      msg.textContent = '✓ ДОСТУП РАЗБЛОКИРОВАН!';
-      msg.className = 'message win';
-    } else {
-      msg.textContent = '✗ ПОДКЛЮЧЕНИЕ ОТКЛОНЕНО. Код: ' + secretCode.join('');
-      msg.className = 'message lose';
-    }
-    document.getElementById('checkBtn').disabled = true;
-    document.querySelectorAll('.input-digit').forEach(i => i.disabled = true);
-  }
-
-  function newGame() {
-    secretCode = generateCode();
-    attempts = 0;
-    gameOver = false;
-    document.getElementById('history').innerHTML = '';
-    document.getElementById('attemptsLeft').textContent = MAX_ATTEMPTS;
-    document.getElementById('message').textContent = '';
-    document.getElementById('message').className = 'message';
-    document.getElementById('checkBtn').disabled = false;
-    document.querySelectorAll('.input-digit').forEach(inp => {
-      inp.disabled = false;
-      inp.value = '';
+    g.forEach((d, i) => {
+      const c = document.createElement('div');
+      c.className = 'digit-v1 ' + r[i];
+      c.textContent = d;
+      row.appendChild(c);
     });
-    document.querySelector('.input-digit[data-idx="0"]').focus();
-    console.log('(для отладки) Код:', secretCode.join(''));
+    $('v1History').appendChild(row);
   }
-
+  function end(won) {
+    over = true;
+    const m = $('v1Message');
+    if (won) { m.textContent = '✓ ДОСТУП РАЗБЛОКИРОВАН!'; m.className = 'message win'; }
+    else     { m.textContent = '✗ ПОДКЛЮЧЕНИЕ ОТКЛОНЕНО. Код: ' + secret.join(''); m.className = 'message lose'; }
+    $('v1CheckBtn').disabled = true;
+    document.querySelectorAll('#v1InputArea .input-digit').forEach(i => i.disabled = true);
+  }
   function handleCheck() {
-    if (gameOver) return;
-    const inputs = document.querySelectorAll('.input-digit');
-    const guess = Array.from(inputs).map(i => i.value);
-    if (guess.some(v => !/^\d$/.test(v))) {
-      document.getElementById('message').textContent = '⚠ Введите 4 цифры';
-      document.getElementById('message').className = 'message';
-      return;
-    }
-    if (new Set(guess).size !== CODE_LENGTH) {
-      document.getElementById('message').textContent = '⚠ Цифры не должны повторяться';
-      document.getElementById('message').className = 'message';
-      return;
-    }
-    const guessNum = guess.map(Number);
-    const result = checkGuess(guessNum);
-    renderAttempt(guessNum, result);
+    if (over) return;
+    const inputs = document.querySelectorAll('#v1InputArea .input-digit');
+    const g = Array.from(inputs).map(i => i.value);
+    const m = $('v1Message');
+    if (g.some(v => !/^\d$/.test(v))) { m.textContent = '⚠ Введите 4 цифры'; m.className = 'message warn'; return; }
+    if (new Set(g).size !== LEN)      { m.textContent = '⚠ Цифры не должны повторяться'; m.className = 'message warn'; return; }
+    const gn = g.map(Number);
+    const r = check(gn);
+    render(gn, r);
     attempts++;
-    document.getElementById('attemptsLeft').textContent = MAX_ATTEMPTS - attempts;
-    document.getElementById('message').textContent = '';
+    $('v1AttemptsLeft').textContent = MAX - attempts;
+    m.textContent = '';
     inputs.forEach(i => i.value = '');
     inputs[0].focus();
-
-    if (result.every(r => r === 'correct')) {
-      endGame(true);
-    } else if (attempts >= MAX_ATTEMPTS) {
-      endGame(false);
-    }
+    if (r.every(x => x === 'correct')) end(true);
+    else if (attempts >= MAX) end(false);
   }
-
-  // Навигация между полями ввода
-  document.querySelectorAll('.input-digit').forEach((inp, idx, arr) => {
-    inp.addEventListener('input', (e) => {
-      const v = e.target.value.replace(/\D/g, '');
+  function reset() {
+    secret = gen(); attempts = 0; over = false;
+    $('v1History').innerHTML = '';
+    $('v1AttemptsLeft').textContent = MAX;
+    $('v1Message').textContent = ''; $('v1Message').className = 'message';
+    $('v1CheckBtn').disabled = false;
+    document.querySelectorAll('#v1InputArea .input-digit').forEach(i => {
+      i.disabled = false; i.value = '';
+    });
+    document.querySelector('#v1InputArea .input-digit').focus();
+  }
+  document.querySelectorAll('#v1InputArea .input-digit').forEach((inp, idx, arr) => {
+    inp.addEventListener('input', e => {
+      const v = e.target.value.replace(/\D/g,'');
       e.target.value = v.slice(-1);
       if (v && idx < arr.length - 1) arr[idx + 1].focus();
     });
-    inp.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !e.target.value && idx > 0) {
-        arr[idx - 1].focus();
-      }
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !e.target.value && idx > 0) arr[idx - 1].focus();
       if (e.key === 'Enter') handleCheck();
     });
   });
+  $('v1CheckBtn').addEventListener('click', handleCheck);
+  $('v1NewBtn').addEventListener('click', reset);
+  return { reset };
+})();
 
-  document.getElementById('checkBtn').addEventListener('click', handleCheck);
-  document.getElementById('newGameBtn').addEventListener('click', newGame);
-
-  newGame();
+const GameV2 = (() => {
+  const ATTEMPTS = { 3:5, 4:6, 5:7, 6:8 };
+  let len = 4, max = 6, secret = [], attempts = 0, over = false;
+  let guess = [], absent = new Set();
+  const $ = id => document.getElementById(id);
+  const buzz = ms => { if (navigator.vibrate) navigator.vibrate(ms); };
+  function gen() {
+    const pool = [0,1,2,3,4,5,6,7,8,9], code = [];
+    for (let i = 0; i < len; i++) code.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+    return code;
+  }
+  function check(g) {
+    const r = Array(len).fill('wrong');
+    for (let i = 0; i < len; i++) if (g[i] === secret[i]) r[i] = 'correct';
+    for (let i = 0; i < len; i++) {
+      if (r[i] === 'correct') continue;
+      for (let j = 0; j < len; j++) {
+        if (i !== j && r[j] !== 'correct' && g[i] === secret[j]) { r[i] = 'misplaced'; break; }
+      }
+    }
+    return r;
+  }
+  function buildCells() {
+    const area = $('v2InputArea'); area.innerHTML = '';
+    for (let i = 0; i < len; i++) {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      area.appendChild(c);
+    }
+    renderCells();
+  }
+  function renderCells() {
+    const active = guess.indexOf(null);
+    [...$('v2InputArea').children].forEach((c, i) => {
+      c.textContent = guess[i] === null ? '' : guess[i];
+      c.className = 'cell' + (guess[i] !== null ? ' filled' : '') + (i === active && !over ? ' active' : '');
+    });
+  }
+  function renderKeypad() {
+    $('v2Keypad').querySelectorAll('.key[data-key]').forEach(k => {
+      const d = parseInt(k.dataset.key, 10);
+      k.classList.toggle('absent', absent.has(d));
+      k.classList.toggle('dead', over);
+    });
+  }
+  function say(text, cls = 'warn') {
+    const m = $('v2Message'); m.textContent = text; m.className = 'message ' + cls;
+  }
+  function press(d) {
+    if (over) return;
+    const idx = guess.indexOf(null);
+    if (idx === -1) { say('⚠ Код заполнен — жми ПРОВЕРИТЬ'); buzz(30); return; }
+    if (guess.includes(d)) {
+      say('⚠ Цифры не должны повторяться');
+      $('v2InputArea').classList.add('shake');
+      setTimeout(() => $('v2InputArea').classList.remove('shake'), 300);
+      buzz(40); return;
+    }
+    guess[idx] = d;
+    $('v2Message').textContent = '';
+    buzz(12); renderCells();
+  }
+  function back() {
+    if (over) return;
+    for (let i = len - 1; i >= 0; i--) if (guess[i] !== null) { guess[i] = null; break; }
+    buzz(12); renderCells();
+  }
+  function clear() {
+    if (over) return;
+    guess = Array(len).fill(null);
+    $('v2Message').textContent = '';
+    buzz(20); renderCells();
+  }
+  function render(g, r) {
+    const row = document.createElement('div');
+    row.className = 'attempt-row';
+    g.forEach((d, i) => {
+      const c = document.createElement('div');
+      c.className = 'digit-v2 ' + r[i];
+      c.textContent = d;
+      row.appendChild(c);
+    });
+    const h = $('v2History'); h.appendChild(row); h.scrollTop = h.scrollHeight;
+  }
+  function end(won) {
+    over = true;
+    if (won) { say('✓ ДОСТУП РАЗБЛОКИРОВАН!', 'win'); buzz([40,60,120]); }
+    else     { say('✗ ОТКАЗАНО. Код: ' + secret.join(''), 'lose'); buzz(300); }
+    $('v2CheckBtn').disabled = true;
+    renderCells(); renderKeypad();
+  }
+  function handleCheck() {
+    if (over) return;
+    if (guess.includes(null)) { say('⚠ Введите все ' + len + ' цифр'); buzz(40); return; }
+    const r = check(guess);
+    render(guess, r);
+    r.forEach((x, i) => { if (x === 'wrong') absent.add(guess[i]); });
+    attempts++;
+    $('v2AttemptsLeft').textContent = max - attempts;
+    $('v2Message').textContent = '';
+    const won = r.every(x => x === 'correct');
+    guess = Array(len).fill(null);
+    renderCells(); renderKeypad();
+    if (won) end(true);
+    else if (attempts >= max) end(false);
+  }
+  function start(l) {
+    len = l; max = ATTEMPTS[l];
+    secret = gen(); attempts = 0; over = false; absent = new Set();
+    guess = Array(len).fill(null);
+    $('v2History').innerHTML = '';
+    $('v2AttemptsLeft').textContent = max;
+    $('v2Message').textContent = ''; $('v2Message').className = 'message';
+    $('v2CheckBtn').disabled = false;
+    buildCells(); renderKeypad();
+    $('v2Menu').style.display = 'none';
+    $('v2Game').style.display = 'block';
+  }
+  function toMenu() {
+    $('v2Menu').style.display = 'block';
+    $('v2Game').style.display = 'none';
+  }
+  document.querySelectorAll('#v2Screen .diff-btn').forEach(b =>
+    b.addEventListener('click', () => start(+b.dataset.length)));
+  $('v2Keypad').addEventListener('click', e => {
+    const k = e.target.closest('.key'); if (!k) return;
+    const key = k.dataset.key;
+    if (key === 'back') back();
+    else if (key === 'clear') clear();
+    else press(parseInt(key, 10));
+  });
+  $('v2CheckBtn').addEventListener('click', handleCheck);
+  $('v2MenuBtn').addEventListener('click', toMenu);
+  document.addEventListener('keydown', e => {
+    if (!$('v2Screen').classList.contains('active') || $('v2Game').style.display === 'none') return;
+    if (/^[0-9]$/.test(e.key)) { press(+e.key); e.preventDefault(); }
+    else if (e.key === 'Backspace') { back(); e.preventDefault(); }
+    else if (e.key === 'Enter') { handleCheck(); e.preventDefault(); }
+    else if (e.key === 'Escape') clear();
+  });
+  return { toMenu };
+})();
 </script>
 </body>
 </html>
