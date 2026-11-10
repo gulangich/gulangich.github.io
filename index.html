@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔓 Взломай телефон</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Courier New', monospace;
+    background: radial-gradient(circle at center, #0a0a1a 0%, #000 100%);
+    color: #00ff88;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .container {
+    background: rgba(10, 20, 30, 0.9);
+    border: 2px solid #00ff88;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.3), inset 0 0 20px rgba(0, 255, 136, 0.05);
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px #00ff88;
+    letter-spacing: 2px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #88aaff;
+    font-size: 0.85em;
+    margin-bottom: 20px;
+  }
+  .attempts {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #ffaa00;
+  }
+  .history {
+    margin-bottom: 20px;
+    min-height: 50px;
+  }
+  .attempt-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    animation: slideIn 0.4s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .digit {
+    width: 50px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    font-weight: bold;
+    border: 2px solid #334;
+    border-radius: 8px;
+    background: #111;
+    transition: all 0.3s;
+  }
+  .digit.correct {
+    background: #00ff88;
+    color: #000;
+    border-color: #00ff88;
+    box-shadow: 0 0 15px #00ff88;
+  }
+  .digit.misplaced {
+    background: #4488ff;
+    color: #fff;
+    border-color: #4488ff;
+    box-shadow: 0 0 15px #4488ff;
+  }
+  .digit.wrong {
+    background: #222;
+    color: #555;
+  }
+  .input-area {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+  .input-digit {
+    width: 50px;
+    height: 60px;
+    text-align: center;
+    font-size: 1.8em;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: #111;
+    color: #00ff88;
+    border: 2px solid #00ff88;
+    border-radius: 8px;
+    outline: none;
+  }
+  .input-digit:focus {
+    box-shadow: 0 0 10px #00ff88;
+  }
+  .btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: #00ff88;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+  .btn:hover:not(:disabled) {
+    background: #00cc6e;
+    box-shadow: 0 0 20px #00ff88;
+  }
+  .btn:disabled {
+    background: #333;
+    color: #666;
+    cursor: not-allowed;
+  }
+  .btn-secondary {
+    background: transparent;
+    color: #00ff88;
+    border: 2px solid #00ff88;
+    margin-top: 10px;
+  }
+  .btn-secondary:hover {
+    background: rgba(0, 255, 136, 0.1);
+  }
+  .message {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 1.2em;
+    min-height: 30px;
+    font-weight: bold;
+  }
+  .message.win { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
+  .message.lose { color: #ff4444; text-shadow: 0 0 10px #ff4444; }
+  .legend {
+    display: flex;
+    justify-content: space-around;
+    font-size: 0.75em;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #334;
+    color: #888;
+  }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend .dot {
+    width: 12px; height: 12px; border-radius: 3px;
+  }
+  .legend .g { background: #00ff88; }
+  .legend .b { background: #4488ff; }
+  .legend .w { background: #222; border: 1px solid #555; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔓 ВЗЛОМАЙ ТЕЛЕФОН</h1>
+    <div class="subtitle">Угадай 4-значный код за 5 попыток</div>
+    <div class="attempts">Попыток осталось: <span id="attemptsLeft">5</span></div>
+    <div class="history" id="history"></div>
+    <div class="input-area" id="inputArea">
+      <input type="text" class="input-digit" maxlength="1" data-idx="0" inputmode="numeric">
+      <input type="text" class="input-digit" maxlength="1" data-idx="1" inputmode="numeric">
+      <input type="text" class="input-digit" maxlength="1" data-idx="2" inputmode="numeric">
+      <input type="text" class="input-digit" maxlength="1" data-idx="3" inputmode="numeric">
+    </div>
+    <button class="btn" id="checkBtn">ПРОВЕРИТЬ КОД</button>
+    <div class="message" id="message"></div>
+    <button class="btn btn-secondary" id="newGameBtn">НОВАЯ ИГРА</button>
+    <div class="legend">
+      <span><span class="dot g"></span>на месте</span>
+      <span><span class="dot b"></span>не там</span>
+      <span><span class="dot w"></span>нет в коде</span>
+    </div>
+  </div>
+
+<script>
+  const CODE_LENGTH = 4;
+  const MAX_ATTEMPTS = 5;
+  let secretCode = [];
+  let attempts = 0;
+  let gameOver = false;
+
+  function generateCode() {
+    const digits = [0,1,2,3,4,5,6,7,8,9];
+    const code = [];
+    for (let i = 0; i < CODE_LENGTH; i++) {
+      const idx = Math.floor(Math.random() * digits.length);
+      code.push(digits.splice(idx, 1)[0]);
+    }
+    return code;
+  }
+
+  function checkGuess(guess) {
+    const result = Array(CODE_LENGTH).fill('wrong');
+    // Сначала ищем точные совпадения
+    for (let i = 0; i < CODE_LENGTH; i++) {
+      if (guess[i] === secretCode[i]) {
+        result[i] = 'correct';
+      }
+    }
+    // Потом ищем цифры, которые есть, но не на своём месте
+    for (let i = 0; i < CODE_LENGTH; i++) {
+      if (result[i] === 'correct') continue;
+      for (let j = 0; j < CODE_LENGTH; j++) {
+        if (i !== j && result[j] !== 'correct' && guess[i] === secretCode[j]) {
+          result[i] = 'misplaced';
+          break;
+        }
+      }
+    }
+    return result;
+  }
+
+  function renderAttempt(guess, result) {
+    const history = document.getElementById('history');
+    const row = document.createElement('div');
+    row.className = 'attempt-row';
+    for (let i = 0; i < CODE_LENGTH; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'digit ' + result[i];
+      cell.textContent = guess[i];
+      row.appendChild(cell);
+    }
+    history.appendChild(row);
+  }
+
+  function endGame(won) {
+    gameOver = true;
+    const msg = document.getElementById('message');
+    if (won) {
+      msg.textContent = '✓ ДОСТУП РАЗБЛОКИРОВАН!';
+      msg.className = 'message win';
+    } else {
+      msg.textContent = '✗ ПОДКЛЮЧЕНИЕ ОТКЛОНЕНО. Код: ' + secretCode.join('');
+      msg.className = 'message lose';
+    }
+    document.getElementById('checkBtn').disabled = true;
+    document.querySelectorAll('.input-digit').forEach(i => i.disabled = true);
+  }
+
+  function newGame() {
+    secretCode = generateCode();
+    attempts = 0;
+    gameOver = false;
+    document.getElementById('history').innerHTML = '';
+    document.getElementById('attemptsLeft').textContent = MAX_ATTEMPTS;
+    document.getElementById('message').textContent = '';
+    document.getElementById('message').className = 'message';
+    document.getElementById('checkBtn').disabled = false;
+    document.querySelectorAll('.input-digit').forEach(inp => {
+      inp.disabled = false;
+      inp.value = '';
+    });
+    document.querySelector('.input-digit[data-idx="0"]').focus();
+    console.log('(для отладки) Код:', secretCode.join(''));
+  }
+
+  function handleCheck() {
+    if (gameOver) return;
+    const inputs = document.querySelectorAll('.input-digit');
+    const guess = Array.from(inputs).map(i => i.value);
+    if (guess.some(v => !/^\d$/.test(v))) {
+      document.getElementById('message').textContent = '⚠ Введите 4 цифры';
+      document.getElementById('message').className = 'message';
+      return;
+    }
+    if (new Set(guess).size !== CODE_LENGTH) {
+      document.getElementById('message').textContent = '⚠ Цифры не должны повторяться';
+      document.getElementById('message').className = 'message';
+      return;
+    }
+    const guessNum = guess.map(Number);
+    const result = checkGuess(guessNum);
+    renderAttempt(guessNum, result);
+    attempts++;
+    document.getElementById('attemptsLeft').textContent = MAX_ATTEMPTS - attempts;
+    document.getElementById('message').textContent = '';
+    inputs.forEach(i => i.value = '');
+    inputs[0].focus();
+
+    if (result.every(r => r === 'correct')) {
+      endGame(true);
+    } else if (attempts >= MAX_ATTEMPTS) {
+      endGame(false);
+    }
+  }
+
+  // Навигация между полями ввода
+  document.querySelectorAll('.input-digit').forEach((inp, idx, arr) => {
+    inp.addEventListener('input', (e) => {
+      const v = e.target.value.replace(/\D/g, '');
+      e.target.value = v.slice(-1);
+      if (v && idx < arr.length - 1) arr[idx + 1].focus();
+    });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+        arr[idx - 1].focus();
+      }
+      if (e.key === 'Enter') handleCheck();
+    });
+  });
+
+  document.getElementById('checkBtn').addEventListener('click', handleCheck);
+  document.getElementById('newGameBtn').addEventListener('click', newGame);
+
+  newGame();
+</script>
+</body>
+</html>
