@@ -347,6 +347,7 @@ body[data-theme="retro"] .digit-v1.correct, body[data-theme="retro"] .digit-v2.c
       <button class="btn" id="v2CheckBtn">ПРОВЕРИТЬ КОД</button>
       <div class="message" id="v2Message"></div>
       <button class="btn btn-secondary" id="v2MenuBtn">СМЕНИТЬ СЛОЖНОСТЬ</button>
+     <button class="btn btn-secondary" id="v2NewGameBtn">НОВАЯ ИГРА</button>
       <button class="btn btn-secondary" id="v2BackBtn2">← К ВЫБОРУ ВЕРСИИ</button>
       <div class="legend">
         <span><span class="dot g"></span>на месте</span>
@@ -594,6 +595,9 @@ const GameV2 = (() => {
   });
   $('v2CheckBtn').addEventListener('click', handleCheck);
   $('v2MenuBtn').addEventListener('click', toMenu);
+   $('v2NewGameBtn').addEventListener('click', () => {
+    if (len) start(len);
+  });
   document.addEventListener('keydown', e => {
     if (!$('v2Screen').classList.contains('active') || $('v2Game').style.display === 'none') return;
     if (/^[0-9]$/.test(e.key)) { press(+e.key); e.preventDefault(); }
