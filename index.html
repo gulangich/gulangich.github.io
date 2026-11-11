@@ -238,6 +238,47 @@
     font-weight: bold;
     letter-spacing: 1.5px;
   }
+   /* ---- STEAM 2003 ---- */
+  body[data-theme="steam"] { --bg1:#1b2838; --bg2:#0e1621; --accent:#66c0f4; --accent-dim:rgba(102,192,244,.25); --accent2:#c6d4df; --warn:#ff7b00; --panel:rgba(27,40,56,.96); --key-bg:#2a3f5a; --key-border:#4a6785; }
+  body[data-theme="steam"] body { background: linear-gradient(180deg, #1b2838 0%, #0e1621 100%); }
+  body[data-theme="steam"] .container { background: linear-gradient(180deg, #2a3f5a 0%, #1b2838 100%); border: 1px solid #4a6785; border-radius: 4px; box-shadow: 0 0 40px rgba(102,192,244,.2), inset 0 1px 0 rgba(255,255,255,.05); }
+  body[data-theme="steam"] h1 { color: #c6d4df; text-shadow: 0 1px 2px rgba(0,0,0,.8); letter-spacing: 2px; font-weight: normal; }
+  body[data-theme="steam"] .subtitle { color: #66c0f4; }
+  body[data-theme="steam"] .version-card { background: linear-gradient(180deg, #3a5068 0%, #2a3f5a 100%); border: 1px solid #4a6785; border-radius: 4px; }
+  body[data-theme="steam"] .version-card .v-title { color: #66c0f4; }
+  body[data-theme="steam"] .version-card .v-badge { background: rgba(102,192,244,.15); color: #66c0f4; border-color: #66c0f4; }
+  body[data-theme="steam"] .version-card .tag { background: #1b2838; color: #66c0f4; border-color: #4a6785; }
+  body[data-theme="steam"] .version-card.v2 .v-title { color: #ff7b00; }
+  body[data-theme="steam"] .version-card.v2 .v-badge { background: rgba(255,123,0,.15); color: #ff7b00; border-color: #ff7b00; }
+  body[data-theme="steam"] .diff-btn { background: linear-gradient(180deg, #3a5068 0%, #2a3f5a 100%); border: 1px solid #4a6785; color: #66c0f4; border-radius: 4px; }
+  body[data-theme="steam"] .btn { background: linear-gradient(180deg, #66c0f4 0%, #4a9fd4 100%); color: #1b2838; border-radius: 4px; font-weight: bold; box-shadow: 0 1px 0 rgba(255,255,255,.2), inset 0 1px 0 rgba(255,255,255,.3); }
+  body[data-theme="steam"] .btn:active:not(:disabled) { background: linear-gradient(180deg, #4a9fd4 0%, #3a8fc4 100%); }
+  body[data-theme="steam"] .btn-secondary { color: #66c0f4; border-color: #4a6785; border-radius: 4px; }
+  body[data-theme="steam"] .btn-secondary:active { background: rgba(102,192,244,.1); }
+  body[data-theme="steam"] .key { background: linear-gradient(180deg, #3a5068 0%, #2a3f5a 100%); color: #c6d4df; border: 1px solid #4a6785; border-radius: 4px; box-shadow: 0 2px 0 #1b2838, inset 0 1px 0 rgba(255,255,255,.08); }
+  body[data-theme="steam"] .key:active { background: linear-gradient(180deg, #66c0f4 0%, #4a9fd4 100%); color: #1b2838; box-shadow: none; transform: translateY(2px); }
+  body[data-theme="steam"] .key.fn { color: #ff7b00; }
+  body[data-theme="steam"] .key.absent { color: #4a5568; background: #1b2838; }
+  body[data-theme="steam"] .cell { border-color: #4a6785; color: #66c0f4; background: #1b2838; border-radius: 4px; }
+  body[data-theme="steam"] .cell.active { box-shadow: 0 0 10px rgba(102,192,244,.5); border-color: #66c0f4; }
+  body[data-theme="steam"] .input-digit { background: #1b2838; color: #66c0f4; border-color: #4a6785; border-radius: 4px; }
+  body[data-theme="steam"] .digit-v1, body[data-theme="steam"] .digit-v2 { border-radius: 4px; border-color: #4a6785; background: #1b2838; }
+  body[data-theme="steam"] .digit-v1.correct, body[data-theme="steam"] .digit-v2.correct { background: linear-gradient(180deg, #66c0f4 0%, #4a9fd4 100%); color: #1b2838; box-shadow: 0 0 12px rgba(102,192,244,.5); }
+  body[data-theme="steam"] .digit-v1.misplaced, body[data-theme="steam"] .digit-v2.misplaced { background: linear-gradient(180deg, #ff7b00 0%, #cc6200 100%); color: #fff; box-shadow: 0 0 12px rgba(255,123,0,.5); }
+  body[data-theme="steam"] .digit-v1.wrong, body[data-theme="steam"] .digit-v2.wrong { background: #0e1621; color: #4a5568; }
+  body[data-theme="steam"] .attempts { color: #ff7b00; }
+  body[data-theme="steam"] .message.win { color: #66c0f4; text-shadow: 0 0 10px rgba(102,192,244,.6); }
+  body[data-theme="steam"] .message.lose { color: #ff7b00; text-shadow: 0 0 10px rgba(255,123,0,.6); }
+  body[data-theme="steam"] .legend { border-top-color: #4a6785; color: #8fa3b8; }
+  body[data-theme="steam"] .beta-tag { border-top-color: #4a6785; color: #8fa3b8; }
+  body[data-theme="steam"] .beta-tag .ver { background: rgba(255,123,0,.15); color: #ff7b00; border-color: #ff7b00; }
+  body[data-theme="steam"] .theme-toggle { border-color: #4a6785; color: #66c0f4; }
+  body[data-theme="steam"] .theme-modal-box { background: linear-gradient(180deg, #2a3f5a 0%, #1b2838 100%); border-color: #4a6785; border-radius: 4px; }
+  body[data-theme="steam"] .theme-modal-box h2 { color: #c6d4df; }
+  body[data-theme="steam"] .theme-option { background: #1b2838; border-color: #4a6785; border-radius: 4px; }
+  body[data-theme="steam"] .theme-option.active { border-color: #66c0f4; }
+  body[data-theme="steam"] .theme-close { color: #66c0f4; border-color: #4a6785; border-radius: 4px; }
+  .tp-steam { background: linear-gradient(180deg, #2a3f5a, #1b2838); color: #66c0f4; border: 1px solid #4a6785; }
   .beta-tag .note {
     display: block;
     margin-top: 6px;
@@ -280,6 +321,13 @@
         <div class="theme-desc">Янтарный ЭЛТ-монитор 80-х</div>
       </div>
     </button>
+       <button class="theme-option" data-theme="retro">
+      <div class="theme-preview tp-retro">▮</div>
+      <div style="text-align:left;">
+        <div class="theme-name">РЕТРО</div>
+        <div class="theme-desc">Янтарный ЭЛТ-монитор 80-х</div>
+      </div>
+       </button>
     <button class="theme-close" id="themeClose">ЗАКРЫТЬ</button>
   </div>
 </div>
