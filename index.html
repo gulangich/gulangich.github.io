@@ -16,6 +16,7 @@
     user-select: none; -webkit-user-select: none;
   }
   .container {
+    position: relative;
     background: rgba(10, 20, 30, 0.92);
     border: 2px solid #00ff88;
     border-radius: 15px;
@@ -66,7 +67,7 @@
   .digit-v1 {
     width: 50px; height: 60px; display: flex; align-items: center; justify-content: center;
     font-size: 1.8em; font-weight: bold; border: 2px solid #334;
-    border-radius: 8px; background: #111;
+    border-radius: 8px; background: #111; position: relative;
   }
   .digit-v1.correct { background: #00ff88; color: #000; border-color: #00ff88; box-shadow: 0 0 15px #00ff88; }
   .digit-v1.misplaced { background: #4488ff; color: #fff; border-color: #4488ff; box-shadow: 0 0 15px #4488ff; }
@@ -76,6 +77,7 @@
     display: flex; align-items: center; justify-content: center;
     font-size: clamp(1.05em, 5vw, 1.5em); font-weight: bold;
     border: 2px solid #334; border-radius: 8px; background: #111;
+    position: relative;
   }
   .digit-v2.correct { background: #00ff88; color: #000; border-color: #00ff88; box-shadow: 0 0 12px #00ff88; }
   .digit-v2.misplaced { background: #4488ff; color: #fff; border-color: #4488ff; box-shadow: 0 0 12px #4488ff; }
@@ -124,96 +126,129 @@
   .legend span { display: flex; align-items: center; gap: 5px; }
   .legend .dot { width: 11px; height: 11px; border-radius: 3px; }
   .legend .g { background: #00ff88; } .legend .b { background: #4488ff; } .legend .w { background: #222; border: 1px solid #555; }
-/* ====== СИСТЕМА ТЕМ ====== */
- :root {
-  --bg1: #0a0a1a; --bg2: #000;
-  --accent: #00ff88; --accent-dim: rgba(0,255,136,.3);
-  --accent2: #88aaff; --accent2-dim: rgba(136,170,255,.15);
-  --warn: #ffaa00; --danger: #ff4444;
-  --panel: rgba(10,20,30,.92);
-  --key-bg: #101820; --key-border: #1f4d3a;
-}
-body, .container, .version-card, .diff-btn, .btn, .key, .cell, .digit-v1, .digit-v2,
-.input-digit, .input-area-v1, .message, .attempts, .subtitle, .legend, .tag,
-.version-card .v-badge, .version-card .v-title { transition: background .3s, color .3s, border-color .3s, box-shadow .3s; }
-
-/* ---- МАТРИЦА ---- */
-body[data-theme="matrix"] { --bg1:#000; --bg2:#000; --accent:#00ff41; --accent-dim:rgba(0,255,65,.3); --accent2:#33ff77; --accent2-dim:rgba(51,255,119,.15); --panel:rgba(0,10,0,.95); --key-bg:#001a00; --key-border:#004d00; }
-body[data-theme="matrix"] .container { box-shadow: 0 0 40px rgba(0,255,65,.4), inset 0 0 30px rgba(0,255,65,.08); }
-body[data-theme="matrix"] h1 { font-family: 'Courier New', monospace; letter-spacing: 3px; }
-body[data-theme="matrix"] .digit-v1.correct, body[data-theme="matrix"] .digit-v2.correct, body[data-theme="matrix"] .btn { box-shadow: 0 0 20px #00ff41; }
-#matrixCanvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0; transition: opacity .5s; pointer-events:none; }
-body[data-theme="matrix"] #matrixCanvas { opacity: .35; }
-
-/* ---- КИБЕРПАНК ---- */
-body[data-theme="cyber"] { --bg1:#1a0033; --bg2:#0a001a; --accent:#ff00aa; --accent-dim:rgba(255,0,170,.3); --accent2:#00ffff; --accent2-dim:rgba(0,255,255,.15); --warn:#ffdd00; --panel:rgba(20,0,40,.92); --key-bg:#2a0044; --key-border:#660066; }
-body[data-theme="cyber"] .container { background: linear-gradient(135deg, rgba(40,0,60,.92), rgba(10,0,30,.92)); box-shadow: 0 0 40px rgba(255,0,170,.4), 0 0 80px rgba(0,255,255,.15); border-color: #ff00aa; }
-body[data-theme="cyber"] h1 { text-shadow: 2px 0 #00ffff, -2px 0 #ff00aa; letter-spacing: 3px; }
-body[data-theme="cyber"] .subtitle { color: #00ffff; }
-body[data-theme="cyber"] .btn { background: linear-gradient(90deg,#ff00aa,#00ffff); color:#000; }
-body[data-theme="cyber"] .digit-v1.correct, body[data-theme="cyber"] .digit-v2.correct { background: #ff00aa; box-shadow: 0 0 20px #ff00aa; }
-body[data-theme="cyber"] .digit-v1.misplaced, body[data-theme="cyber"] .digit-v2.misplaced { background: #00ffff; color:#000; box-shadow: 0 0 20px #00ffff; }
-
-/* ---- РЕТРО ТЕРМИНАЛ ---- */
-body[data-theme="retro"] { --bg1:#1a0f00; --bg2:#0a0500; --accent:#ffb000; --accent-dim:rgba(255,176,0,.3); --accent2:#ff8800; --accent2-dim:rgba(255,136,0,.15); --warn:#ffdd00; --panel:rgba(30,20,0,.95); --key-bg:#2a1a00; --key-border:#664400; }
-body[data-theme="retro"] .container { box-shadow: 0 0 40px rgba(255,176,0,.3), inset 0 0 40px rgba(0,0,0,.5); border-color: #ffb000; background: radial-gradient(ellipse at center, rgba(40,25,0,.95), rgba(10,5,0,.98)); }
-body[data-theme="retro"] .container::before { content:''; position:absolute; inset:0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.15) 0px, rgba(0,0,0,.15) 1px, transparent 1px, transparent 3px); pointer-events:none; border-radius:15px; }
-body[data-theme="retro"] .container { position: relative; overflow: hidden; }
-body[data-theme="retro"] h1 { text-shadow: 0 0 8px #ffb000; }
-body[data-theme="retro"] .digit-v1.correct, body[data-theme="retro"] .digit-v2.correct { background:#ffb000; color:#000; box-shadow: 0 0 15px #ffb000; }
-
-/* ---- ПАНЕЛЬ ТЕМ ---- */
-.theme-toggle {
-  position: absolute; top: 15px; right: 15px;
-  width: 42px; height: 42px; border-radius: 50%;
-  background: transparent; border: 2px solid var(--accent);
-  color: var(--accent); font-size: 1.3em; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  touch-action: manipulation; z-index: 10;
-}
-.theme-toggle:active { background: var(--accent-dim); transform: scale(.92); }
-.container { position: relative; }
-.theme-modal {
-  display: none; position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
-  align-items: center; justify-content: center; padding: 20px;
-}
-.theme-modal.active { display: flex; }
-.theme-modal-box {
-  background: var(--panel); border: 2px solid var(--accent);
-  border-radius: 15px; padding: 22px; max-width: 380px; width: 100%;
-  box-shadow: 0 0 40px var(--accent-dim);
-}
-.theme-modal-box h2 { color: var(--accent); text-align: center; margin-bottom: 16px; font-size: 1.2em; letter-spacing: 2px; }
-.theme-option {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px; margin-bottom: 10px;
-  background: #111; border: 2px solid #334; border-radius: 10px;
-  cursor: pointer; font-family: inherit; color: inherit; width: 100%;
-  touch-action: manipulation;
-}
-.theme-option:active { transform: scale(.98); }
-.theme-option.active { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-dim); }
-.theme-preview {
-  width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: bold; font-size: 1.2em;
-}
-.tp-classic { background: linear-gradient(135deg,#0a0a1a,#000); color:#00ff88; border:1px solid #00ff88; }
-.tp-matrix { background: #000; color:#00ff41; border:1px solid #00ff41; }
-.tp-cyber { background: linear-gradient(135deg,#ff00aa,#00ffff); color:#000; }
-.tp-retro { background: #1a0f00; color:#ffb000; border:1px solid #ffb000; }
-.theme-name { font-weight: bold; font-size: .95em; }
-.theme-desc { font-size: .7em; color: #888; margin-top: 2px; }
-.theme-close {
-  width: 100%; padding: 11px; margin-top: 8px;
-  background: transparent; color: var(--accent); border: 2px solid var(--accent);
-  border-radius: 8px; font-family: inherit; font-weight: bold; cursor: pointer;
-}
+  /* ====== СИСТЕМА ТЕМ ====== */
+  :root {
+    --bg1: #0a0a1a; --bg2: #000;
+    --accent: #00ff88; --accent-dim: rgba(0,255,136,.3);
+    --accent2: #88aaff; --accent2-dim: rgba(136,170,255,.15);
+    --warn: #ffaa00; --danger: #ff4444;
+    --panel: rgba(10,20,30,.92);
+    --key-bg: #101820; --key-border: #1f4d3a;
+  }
+  body, .container, .version-card, .diff-btn, .btn, .key, .cell, .digit-v1, .digit-v2,
+  .input-digit, .input-area-v1, .message, .attempts, .subtitle, .legend, .tag,
+  .version-card .v-badge, .version-card .v-title { transition: background .3s, color .3s, border-color .3s, box-shadow .3s; }
+  body[data-theme="matrix"] { --bg1:#000; --bg2:#000; --accent:#00ff41; --accent-dim:rgba(0,255,65,.3); --accent2:#33ff77; --accent2-dim:rgba(51,255,119,.15); --panel:rgba(0,10,0,.95); --key-bg:#001a00; --key-border:#004d00; }
+  body[data-theme="matrix"] .container { box-shadow: 0 0 40px rgba(0,255,65,.4), inset 0 0 30px rgba(0,255,65,.08); }
+  body[data-theme="matrix"] h1 { letter-spacing: 3px; }
+  body[data-theme="matrix"] .digit-v1.correct, body[data-theme="matrix"] .digit-v2.correct, body[data-theme="matrix"] .btn { box-shadow: 0 0 20px #00ff41; }
+  #matrixCanvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0; transition: opacity .5s; pointer-events:none; }
+  body[data-theme="matrix"] #matrixCanvas { opacity: .35; }
+  body[data-theme="cyber"] { --bg1:#1a0033; --bg2:#0a001a; --accent:#ff00aa; --accent-dim:rgba(255,0,170,.3); --accent2:#00ffff; --accent2-dim:rgba(0,255,255,.15); --warn:#ffdd00; --panel:rgba(20,0,40,.92); --key-bg:#2a0044; --key-border:#660066; }
+  body[data-theme="cyber"] .container { background: linear-gradient(135deg, rgba(40,0,60,.92), rgba(10,0,30,.92)); box-shadow: 0 0 40px rgba(255,0,170,.4), 0 0 80px rgba(0,255,255,.15); border-color: #ff00aa; }
+  body[data-theme="cyber"] h1 { text-shadow: 2px 0 #00ffff, -2px 0 #ff00aa; letter-spacing: 3px; }
+  body[data-theme="cyber"] .subtitle { color: #00ffff; }
+  body[data-theme="cyber"] .btn { background: linear-gradient(90deg,#ff00aa,#00ffff); color:#000; }
+  body[data-theme="cyber"] .digit-v1.correct, body[data-theme="cyber"] .digit-v2.correct { background: #ff00aa; box-shadow: 0 0 20px #ff00aa; }
+  body[data-theme="cyber"] .digit-v1.misplaced, body[data-theme="cyber"] .digit-v2.misplaced { background: #00ffff; color:#000; box-shadow: 0 0 20px #00ffff; }
+  body[data-theme="retro"] { --bg1:#1a0f00; --bg2:#0a0500; --accent:#ffb000; --accent-dim:rgba(255,176,0,.3); --accent2:#ff8800; --accent2-dim:rgba(255,136,0,.15); --warn:#ffdd00; --panel:rgba(30,20,0,.95); --key-bg:#2a1a00; --key-border:#664400; }
+  body[data-theme="retro"] .container { box-shadow: 0 0 40px rgba(255,176,0,.3), inset 0 0 40px rgba(0,0,0,.5); border-color: #ffb000; background: radial-gradient(ellipse at center, rgba(40,25,0,.95), rgba(10,5,0,.98)); overflow: hidden; }
+  body[data-theme="retro"] .container::before { content:''; position:absolute; inset:0; background: repeating-linear-gradient(0deg, rgba(0,0,0,.15) 0px, rgba(0,0,0,.15) 1px, transparent 1px, transparent 3px); pointer-events:none; border-radius:15px; z-index: 1; }
+  body[data-theme="retro"] h1 { text-shadow: 0 0 8px #ffb000; }
+  body[data-theme="retro"] .digit-v1.correct, body[data-theme="retro"] .digit-v2.correct { background:#ffb000; color:#000; box-shadow: 0 0 15px #ffb000; }
+  .theme-toggle {
+    position: absolute; top: 15px; right: 15px;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: transparent; border: 2px solid var(--accent);
+    color: var(--accent); font-size: 1.3em; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation; z-index: 10;
+  }
+  .theme-toggle:active { background: var(--accent-dim); transform: scale(.92); }
+  .theme-modal {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .theme-modal.active { display: flex; }
+  .theme-modal-box {
+    background: var(--panel); border: 2px solid var(--accent);
+    border-radius: 15px; padding: 22px; max-width: 380px; width: 100%;
+    box-shadow: 0 0 40px var(--accent-dim);
+  }
+  .theme-modal-box h2 { color: var(--accent); text-align: center; margin-bottom: 16px; font-size: 1.2em; letter-spacing: 2px; }
+  .theme-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px; margin-bottom: 10px;
+    background: #111; border: 2px solid #334; border-radius: 10px;
+    cursor: pointer; font-family: inherit; color: inherit; width: 100%;
+    touch-action: manipulation;
+  }
+  .theme-option:active { transform: scale(.98); }
+  .theme-option.active { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-dim); }
+  .theme-preview {
+    width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 1.2em;
+  }
+  .tp-classic { background: linear-gradient(135deg,#0a0a1a,#000); color:#00ff88; border:1px solid #00ff88; }
+  .tp-matrix { background: #000; color:#00ff41; border:1px solid #00ff41; }
+  .tp-cyber { background: linear-gradient(135deg,#ff00aa,#00ffff); color:#000; }
+  .tp-retro { background: #1a0f00; color:#ffb000; border:1px solid #ffb000; }
+  .theme-name { font-weight: bold; font-size: .95em; }
+  .theme-desc { font-size: .7em; color: #888; margin-top: 2px; }
+  .theme-close {
+    width: 100%; padding: 11px; margin-top: 8px;
+    background: transparent; color: var(--accent); border: 2px solid var(--accent);
+    border-radius: 8px; font-family: inherit; font-weight: bold; cursor: pointer;
+  }
+  /* ====== ПОДСКАЗКА ====== */
+  .digit-v1.hint, .digit-v2.hint { font-size: 1.2em; }
+  .digit-v1.hint::after, .digit-v2.hint::after {
+    content: attr(data-hint);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ffaa00;
+    color: #000;
+    font-size: 0.55em;
+    padding: 1px 4px;
+    border-radius: 6px;
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(255,170,0,.6);
+  }
+  /* ====== БЕТА-МЕТКА ====== */
+  .beta-tag {
+    text-align: center;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed #334;
+    font-size: .75em;
+    color: #666;
+    letter-spacing: 1px;
+  }
+  .beta-tag .ver {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-left: 6px;
+    background: rgba(255, 170, 0, .1);
+    color: #ffaa00;
+    border: 1px solid #ffaa00;
+    border-radius: 10px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+  }
+  .beta-tag .note {
+    display: block;
+    margin-top: 6px;
+    font-size: .9em;
+    color: #555;
+    font-style: italic;
+  }
 </style>
 </head>
 <body>
- <canvas id="matrixCanvas"></canvas>
+<canvas id="matrixCanvas"></canvas>
 <div class="theme-modal" id="themeModal">
   <div class="theme-modal-box">
     <h2>🎨 ВЫБЕРИ ТЕМУ</h2>
@@ -248,8 +283,11 @@ body[data-theme="retro"] .digit-v1.correct, body[data-theme="retro"] .digit-v2.c
     <button class="theme-close" id="themeClose">ЗАКРЫТЬ</button>
   </div>
 </div>
+
 <div class="container">
-   <div class="screen active" id="mainMenu">
+<button class="theme-toggle" id="themeToggle" title="Сменить тему">⚙</button>
+
+  <div class="screen active" id="mainMenu">
     <h1>🔓 ВЗЛОМАЙ ТЕЛЕФОН</h1>
     <div class="subtitle">Выбери версию игры</div>
     <div class="version-grid">
@@ -278,16 +316,10 @@ body[data-theme="retro"] .digit-v1.correct, body[data-theme="retro"] .digit-v2.c
           <span class="tag">подсказки</span>
         </div>
       </button>
-      <button class="version-card" onclick="window.open('example.com', '_blank')" style="border-color: #ffaa00; text-align: center; padding: 14px;">
-        <div class="v-head" style="justify-content: center; gap: 10px;">
-          <span style="font-size: 1.5em;">☕</span>
-          <span class="v-title" style="color: #ffaa00;">ПОДДЕРЖАТЬ РАЗРАБОТКУ</span>
-        </div>
-        <div class="v-desc" style="margin-top: 8px;">
-          Игра бесплатна и без рекламы.<br>
-          Если тебе понравилось, ты можешь угостить автора кофе или помочь оплатить домен.
-        </div>
-           </button>
+    </div>
+    <div class="beta-tag">
+      ВЗЛОМАЙ ТЕЛЕФОН <span class="ver">v2.1.2-beta</span>
+      <span class="note">Ранняя сборка · возможны баги · обратная связь приветствуется</span>
     </div>
   </div>
 
@@ -347,7 +379,7 @@ body[data-theme="retro"] .digit-v1.correct, body[data-theme="retro"] .digit-v2.c
       <button class="btn" id="v2CheckBtn">ПРОВЕРИТЬ КОД</button>
       <div class="message" id="v2Message"></div>
       <button class="btn btn-secondary" id="v2MenuBtn">СМЕНИТЬ СЛОЖНОСТЬ</button>
-     <button class="btn btn-secondary" id="v2NewGameBtn">НОВАЯ ИГРА</button>
+      <button class="btn btn-secondary" id="v2NewGameBtn">НОВАЯ ИГРА</button>
       <button class="btn btn-secondary" id="v2BackBtn2">← К ВЫБОРУ ВЕРСИИ</button>
       <div class="legend">
         <span><span class="dot g"></span>на месте</span>
@@ -356,8 +388,10 @@ body[data-theme="retro"] .digit-v1.correct, body[data-theme="retro"] .digit-v2.c
       </div>
     </div>
   </div>
+
 </div>
 <script>
+/* ====== НАВИГАЦИЯ ====== */
 const screens = {
   main: document.getElementById('mainMenu'),
   v1:   document.getElementById('v1Screen'),
@@ -378,6 +412,7 @@ document.getElementById('v1BackBtn').addEventListener('click', () => showScreen(
 document.getElementById('v2BackBtn').addEventListener('click', () => showScreen('main'));
 document.getElementById('v2BackBtn2').addEventListener('click', () => showScreen('main'));
 
+/* ====== ВЕРСИЯ 1.0 ====== */
 const GameV1 = (() => {
   const LEN = 4, MAX = 5;
   let secret = [], attempts = 0, over = false;
@@ -403,8 +438,20 @@ const GameV1 = (() => {
     row.className = 'attempt-row';
     g.forEach((d, i) => {
       const c = document.createElement('div');
-      c.className = 'digit-v1 ' + r[i];
+      let cls = 'digit-v1';
+      let hintText = '';
+      if (r[i] === 'hint-gt') {
+        cls += ' misplaced hint';
+        hintText = '>' + d;
+      } else if (r[i] === 'hint-lt') {
+        cls += ' misplaced hint';
+        hintText = '<' + d;
+      } else {
+        cls += ' ' + r[i];
+      }
+      c.className = cls;
       c.textContent = d;
+      if (hintText) c.setAttribute('data-hint', hintText);
       row.appendChild(c);
     });
     $('v1History').appendChild(row);
@@ -426,13 +473,26 @@ const GameV1 = (() => {
     if (new Set(g).size !== LEN)      { m.textContent = '⚠ Цифры не должны повторяться'; m.className = 'message warn'; return; }
     const gn = g.map(Number);
     const r = check(gn);
+    // Подсказка для последней цифры
+    const correctCount = r.filter(x => x === 'correct').length;
+    if (correctCount === LEN - 1) {
+      const misplacedIdx = r.findIndex(x => x === 'misplaced');
+      if (misplacedIdx !== -1) {
+        const diff = secret[misplacedIdx] - gn[misplacedIdx];
+        r[misplacedIdx] = diff > 0 ? 'hint-gt' : 'hint-lt';
+      }
+    }
     render(gn, r);
     attempts++;
     $('v1AttemptsLeft').textContent = MAX - attempts;
     m.textContent = '';
     inputs.forEach(i => i.value = '');
     inputs[0].focus();
-    if (r.every(x => x === 'correct')) end(true);
+    if (r.every(x => x === 'correct' || x === 'hint-gt' || x === 'hint-lt')) {
+      // Если все correct — победа (подсказки не мешают)
+    }
+    const allCorrect = gn.every((d, i) => d === secret[i]);
+    if (allCorrect) end(true);
     else if (attempts >= MAX) end(false);
   }
   function reset() {
@@ -461,7 +521,7 @@ const GameV1 = (() => {
   $('v1NewBtn').addEventListener('click', reset);
   return { reset };
 })();
-
+ /* ====== ВЕРСИЯ 2.0 ====== */
 const GameV2 = (() => {
   const ATTEMPTS = { 3:5, 4:6, 5:7, 6:8 };
   let len = 4, max = 6, secret = [], attempts = 0, over = false;
@@ -540,8 +600,20 @@ const GameV2 = (() => {
     row.className = 'attempt-row';
     g.forEach((d, i) => {
       const c = document.createElement('div');
-      c.className = 'digit-v2 ' + r[i];
+      let cls = 'digit-v2';
+      let hintText = '';
+      if (r[i] === 'hint-gt') {
+        cls += ' misplaced hint';
+        hintText = '>' + d;
+      } else if (r[i] === 'hint-lt') {
+        cls += ' misplaced hint';
+        hintText = '<' + d;
+      } else {
+        cls += ' ' + r[i];
+      }
+      c.className = cls;
       c.textContent = d;
+      if (hintText) c.setAttribute('data-hint', hintText);
       row.appendChild(c);
     });
     const h = $('v2History'); h.appendChild(row); h.scrollTop = h.scrollHeight;
@@ -557,12 +629,21 @@ const GameV2 = (() => {
     if (over) return;
     if (guess.includes(null)) { say('⚠ Введите все ' + len + ' цифр'); buzz(40); return; }
     const r = check(guess);
+    // Подсказка для последней цифры
+    const correctCount = r.filter(x => x === 'correct').length;
+    if (correctCount === len - 1) {
+      const misplacedIdx = r.findIndex(x => x === 'misplaced');
+      if (misplacedIdx !== -1) {
+        const diff = secret[misplacedIdx] - guess[misplacedIdx];
+        r[misplacedIdx] = diff > 0 ? 'hint-gt' : 'hint-lt';
+      }
+    }
     render(guess, r);
-    r.forEach((x, i) => { if (x === 'wrong') absent.add(guess[i]); });
+    r.forEach((x, i) => { if (x === 'wrong' || x === 'hint-gt' || x === 'hint-lt') absent.add(guess[i]); });
     attempts++;
     $('v2AttemptsLeft').textContent = max - attempts;
     $('v2Message').textContent = '';
-    const won = r.every(x => x === 'correct');
+    const won = guess.every((d, i) => d === secret[i]);
     guess = Array(len).fill(null);
     renderCells(); renderKeypad();
     if (won) end(true);
@@ -595,7 +676,7 @@ const GameV2 = (() => {
   });
   $('v2CheckBtn').addEventListener('click', handleCheck);
   $('v2MenuBtn').addEventListener('click', toMenu);
-   $('v2NewGameBtn').addEventListener('click', () => {
+  $('v2NewGameBtn').addEventListener('click', () => {
     if (len) start(len);
   });
   document.addEventListener('keydown', e => {
@@ -607,6 +688,7 @@ const GameV2 = (() => {
   });
   return { toMenu };
 })();
+
 /* ====== СИСТЕМА ТЕМ ====== */
 const themeToggle = document.getElementById('themeToggle');
 const themeModal = document.getElementById('themeModal');
@@ -622,14 +704,12 @@ function applyTheme(theme) {
   try { localStorage.setItem('hackTheme', theme || ''); } catch(e) {}
   if (theme === 'matrix') startMatrix(); else stopMatrix();
 }
-
 function loadTheme() {
   try {
     const saved = localStorage.getItem('hackTheme') || '';
     applyTheme(saved);
   } catch(e) { applyTheme(''); }
 }
-
 themeToggle.addEventListener('click', () => themeModal.classList.add('active'));
 themeClose.addEventListener('click', () => themeModal.classList.remove('active'));
 themeModal.addEventListener('click', e => { if (e.target === themeModal) themeModal.classList.remove('active'); });
@@ -640,7 +720,7 @@ themeOptions.forEach(opt => {
   });
 });
 
-/* ====== ЭФФЕКТ «МАТРИЦА» (canvas) ====== */
+/* ====== ЭФФЕКТ «МАТРИЦА» ====== */
 const matrixCanvas = document.getElementById('matrixCanvas');
 const mctx = matrixCanvas.getContext('2d');
 let matrixAnim = null;
