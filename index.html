@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🔓 Взломай телефон</title>
+<title>🔓 Взломай код</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
@@ -94,6 +94,74 @@
   body[data-theme="retro"] .legend .b { background: #ff6600; }
   body[data-theme="steam"] .legend .g { background: linear-gradient(180deg, #6a7a5c, #4c5844); }
   body[data-theme="steam"] .legend .b { background: linear-gradient(180deg, #c4a855, #9a8440); }
+  /* ====== ПОДСКАЗКА ПОД КНОПКОЙ ====== */
+  .hint-display {
+    display: none;
+    text-align: center;
+    margin: 10px 0;
+    padding: 10px 14px;
+    background: rgba(255, 170, 0, 0.1);
+    border: 1px solid #ffaa00;
+    border-radius: 8px;
+    color: #ffaa00;
+    font-size: 1.05em;
+    font-weight: bold;
+    letter-spacing: 1px;
+    animation: slideIn 0.3s ease;
+  }
+  .hint-display.active { display: block; }
+  body[data-theme="matrix"] .hint-display { background: rgba(170,255,0,.1); border-color: #aaff00; color: #aaff00; }
+  body[data-theme="cyber"] .hint-display { background: rgba(0,255,255,.1); border-color: #00ffff; color: #00ffff; }
+  body[data-theme="retro"] .hint-display { background: rgba(255,102,0,.1); border-color: #ff6600; color: #ff6600; }
+  body[data-theme="steam"] .hint-display { background: rgba(196,168,85,.1); border-color: #c4a855; color: #c4a855; }
+  /* ====== ПАНЕЛЬ ТЕМ ====== */
+  .theme-toggle {
+    position: absolute; top: 15px; right: 15px;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: transparent; border: 2px solid var(--accent);
+    color: var(--accent); font-size: 1.3em; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation; z-index: 10;
+  }
+  .theme-toggle:active { background: var(--accent-dim); transform: scale(.92); }
+  .theme-modal {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .theme-modal.active { display: flex; }
+  .theme-modal-box {
+    background: var(--panel); border: 2px solid var(--accent);
+    border-radius: 15px; padding: 22px; max-width: 380px; width: 100%;
+    box-shadow: 0 0 40px var(--accent-dim);
+  }
+  .theme-modal-box h2 { color: var(--accent); text-align: center; margin-bottom: 16px; font-size: 1.2em; letter-spacing: 2px; }
+  .theme-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px; margin-bottom: 10px;
+    background: #111; border: 2px solid #334; border-radius: 10px;
+    cursor: pointer; font-family: inherit; color: inherit; width: 100%;
+    touch-action: manipulation;
+  }
+  .theme-option:active { transform: scale(.98); }
+  .theme-option.active { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-dim); }
+  .theme-preview {
+    width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 1.2em;
+  }
+  .tp-classic { background: linear-gradient(135deg,#0a0a1a,#000); color:#00ff88; border:1px solid #00ff88; }
+  .tp-matrix { background: #000; color:#00ff41; border:1px solid #00ff41; }
+  .tp-cyber { background: linear-gradient(135deg,#ff00aa,#00ffff); color:#000; }
+  .tp-retro { background: #1a0f00; color:#ffb000; border:1px solid #ffb000; }
+  .tp-steam { background: linear-gradient(180deg, #4c5844, #2a2e26); color: #c4d4b8; border: 1px solid #5a6450; }
+  .theme-name { font-weight: bold; font-size: .95em; }
+  .theme-desc { font-size: .7em; color: #888; margin-top: 2px; }
+  .theme-close {
+    width: 100%; padding: 11px; margin-top: 8px;
+    background: transparent; color: var(--accent); border: 2px solid var(--accent);
+    border-radius: 8px; font-family: inherit; font-weight: bold; cursor: pointer;
+  }
   /* ====== СИСТЕМА ТЕМ ====== */
   :root {
     --bg1: #0a0a1a; --bg2: #000;
@@ -161,74 +229,6 @@
   body[data-theme="steam"] .theme-option { background: #2a2e26; border-color: #5a6450; border-radius: 4px; }
   body[data-theme="steam"] .theme-option.active { border-color: #8a9a7c; }
   body[data-theme="steam"] .theme-close { color: #c4d4b8; border-color: #5a6450; border-radius: 4px; }
- /* ====== ПОДСКАЗКА ПОД КНОПКОЙ ====== */
-  .hint-display {
-    display: none;
-    text-align: center;
-    margin: 10px 0;
-    padding: 10px 14px;
-    background: rgba(255, 170, 0, 0.1);
-    border: 1px solid #ffaa00;
-    border-radius: 8px;
-    color: #ffaa00;
-    font-size: 1.05em;
-    font-weight: bold;
-    letter-spacing: 1px;
-    animation: slideIn 0.3s ease;
-  }
-  .hint-display.active { display: block; }
-  body[data-theme="matrix"] .hint-display { background: rgba(170,255,0,.1); border-color: #aaff00; color: #aaff00; }
-  body[data-theme="cyber"] .hint-display { background: rgba(0,255,255,.1); border-color: #00ffff; color: #00ffff; }
-  body[data-theme="retro"] .hint-display { background: rgba(255,102,0,.1); border-color: #ff6600; color: #ff6600; }
-  body[data-theme="steam"] .hint-display { background: rgba(196,168,85,.1); border-color: #c4a855; color: #c4a855; }
- /* ====== ПАНЕЛЬ ТЕМ ====== */
-  .theme-toggle {
-    position: absolute; top: 15px; right: 15px;
-    width: 42px; height: 42px; border-radius: 50%;
-    background: transparent; border: 2px solid var(--accent);
-    color: var(--accent); font-size: 1.3em; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    touch-action: manipulation; z-index: 10;
-  }
-  .theme-toggle:active { background: var(--accent-dim); transform: scale(.92); }
-  .theme-modal {
-    display: none; position: fixed; inset: 0; z-index: 100;
-    background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
-    align-items: center; justify-content: center; padding: 20px;
-  }
-  .theme-modal.active { display: flex; }
-  .theme-modal-box {
-    background: var(--panel); border: 2px solid var(--accent);
-    border-radius: 15px; padding: 22px; max-width: 380px; width: 100%;
-    box-shadow: 0 0 40px var(--accent-dim);
-  }
-  .theme-modal-box h2 { color: var(--accent); text-align: center; margin-bottom: 16px; font-size: 1.2em; letter-spacing: 2px; }
-  .theme-option {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px; margin-bottom: 10px;
-    background: #111; border: 2px solid #334; border-radius: 10px;
-    cursor: pointer; font-family: inherit; color: inherit; width: 100%;
-    touch-action: manipulation;
-  }
-  .theme-option:active { transform: scale(.98); }
-  .theme-option.active { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-dim); }
-  .theme-preview {
-    width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: bold; font-size: 1.2em;
-  }
-  .tp-classic { background: linear-gradient(135deg,#0a0a1a,#000); color:#00ff88; border:1px solid #00ff88; }
-  .tp-matrix { background: #000; color:#00ff41; border:1px solid #00ff41; }
-  .tp-cyber { background: linear-gradient(135deg,#ff00aa,#00ffff); color:#000; }
-  .tp-retro { background: #1a0f00; color:#ffb000; border:1px solid #ffb000; }
-  .tp-steam { background: linear-gradient(180deg, #4c5844, #2a2e26); color: #c4d4b8; border: 1px solid #5a6450; }
-  .theme-name { font-weight: bold; font-size: .95em; }
-  .theme-desc { font-size: .7em; color: #888; margin-top: 2px; }
-  .theme-close {
-    width: 100%; padding: 11px; margin-top: 8px;
-    background: transparent; color: var(--accent); border: 2px solid var(--accent);
-    border-radius: 8px; font-family: inherit; font-weight: bold; cursor: pointer;
-  }
 </style>
 </head>
 <body>
@@ -279,7 +279,7 @@
 <button class="theme-toggle" id="themeToggle" title="Сменить тему">⚙</button>
 
   <div class="screen active" id="menuScreen">
-    <h1>🔓 ВЗЛОМАЙ ТЕЛЕФОН</h1>
+    <h1>🔓 ВЗЛОМАЙ КОД</h1>
     <div class="subtitle">Выбери длину секретного кода</div>
     <div class="difficulty-grid">
       <button class="diff-btn" data-length="3"><span class="num">3</span><span class="label">Новичок · 5 попыток</span></button>
@@ -308,7 +308,7 @@
       <button class="key fn" data-key="clear">C</button>
     </div>
     <button class="btn" id="checkBtn">ПРОВЕРИТЬ КОД</button>
-   <div class="hint-display" id="hintDisplay"></div>
+    <div class="hint-display" id="hintDisplay"></div>
     <div class="message" id="message"></div>
     <button class="btn btn-secondary" id="newGameBtn">НОВАЯ ИГРА</button>
     <button class="btn btn-secondary" id="backBtn">← К ВЫБОРУ СЛОЖНОСТИ</button>
@@ -422,8 +422,8 @@ function render(g, r) {
 }
 function end(won) {
   over = true;
-  if (won) { say('✓ ДОСТУП РАЗБЛОКИРОВАН!', 'win'); buzz([40,60,120]); }
-  else     { say('✗ ОТКАЗАНО. Код: ' + secret.join(''), 'lose'); buzz(300); }
+  if (won) { say('✓ КОД ВЗЛОМАН!', 'win'); buzz([40,60,120]); }
+  else     { say('✗ ПОДКЛЮЧЕНИЕ ОТКЛОНЕНО. Код: ' + secret.join(''), 'lose'); buzz(300); }
   $('checkBtn').disabled = true;
   renderCells(); renderKeypad();
 }
@@ -463,17 +463,6 @@ function handleCheck() {
   if (won) end(true);
   else if (attempts >= max) end(false);
 }
-  render(guess, r);
-  r.forEach((x, i) => { if (x === 'wrong') absent.add(guess[i]); });
-  attempts++;
-  $('attemptsLeft').textContent = max - attempts;
-  $('message').textContent = '';
-  const won = guess.every((d, i) => d === secret[i]);
-  guess = Array(len).fill(null);
-  renderCells(); renderKeypad();
-  if (won) end(true);
-  else if (attempts >= max) end(false);
-}
 function start(l) {
   len = l; max = ATTEMPTS[l];
   secret = gen(); attempts = 0; over = false; absent = new Set();
@@ -482,10 +471,10 @@ function start(l) {
   $('attemptsLeft').textContent = max;
   $('message').textContent = ''; $('message').className = 'message';
   $('checkBtn').disabled = false;
-  buildCells(); renderKeypad();
   const hintDisplay = $('hintDisplay');
   hintDisplay.classList.remove('active');
   hintDisplay.textContent = '';
+  buildCells(); renderKeypad();
   showGame();
 }
 
@@ -510,7 +499,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Enter') { handleCheck(); e.preventDefault(); }
   else if (e.key === 'Escape') clear();
 });
- /* ====== СИСТЕМА ТЕМ ====== */
+/* ====== СИСТЕМА ТЕМ ====== */
 const themeToggle = document.getElementById('themeToggle');
 const themeModal = document.getElementById('themeModal');
 const themeClose = document.getElementById('themeClose');
