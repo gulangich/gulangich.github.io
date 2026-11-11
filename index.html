@@ -429,15 +429,41 @@ function handleCheck() {
   if (over) return;
   if (guess.includes(null)) { say('⚠ Введите все ' + len + ' цифр'); buzz(40); return; }
   const r = check(guess);
-  // Подсказка для последней цифры
+  
+  // Подсказка для 1-2 неугаданных позиций
   const correctCount = r.filter(x => x === 'correct').length;
-  if (correctCount === len - 1) {
+  const wrongCount = r.filter(x => x === 'wrong').length;
+  const misplacedCount = r.filter(x => x === 'misplaced').length;
+  
+  // Если осталось 1-2 неугаданные позиции (correct + misplaced + wrong = len)
+  if (correctCount >= len - 2 && misplacedCount > 0) {
+    // Находим первую misplaced цифру и даём подсказку
     const misplacedIdx = r.findIndex(x => x === 'misplaced');
     if (misplacedIdx !== -1) {
-      const diff = secret[misplacedIdx] - guess[misplacedIdx];
-      r[misplacedIdx] = diff > 0 ? 'hint-gt' : 'hint-lt';
+      // Ищем, где эта цифра должна быть
+      for (let j = 0; j < len; j++) {
+        if (r[j] === 'wrong' && guess[misplacedIdx] === secret[j]) {
+          // Нашли! Цифра misplacedIdx должна быть на позиции j
+          // Сравниваем с текущей позицией
+          const diff = secret[j] - guess[misplacedIdx];
+          r[misplacedIdx] = diff > 0 ? 'hint-gt' : 'hint-lt';
+          break;
+        }
+      }
     }
   }
+  
+  render(guess, r);
+  r.forEach((x, i) => { if (x === 'wrong') absent.add(guess[i]); });
+  attempts++;
+  $('attemptsLeft').textContent = max - attempts;
+  $('message').textContent = '';
+  const won = guess.every((d, i) => d === secret[i]);
+  guess = Array(len).fill(null);
+  renderCells(); renderKeypad();
+  if (won) end(true);
+  else if (attempts >= max) end(false);
+}
   render(guess, r);
   r.forEach((x, i) => { if (x === 'wrong') absent.add(guess[i]); });
   attempts++;
