@@ -1,0 +1,81 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:monospace;background:var(--tg-theme-bg-color);color:var(--tg-theme-text-color);padding:10px 12px 14px;user-select:none;-webkit-user-select:none}
+h1{font-size:17px;text-align:center;letter-spacing:1px}
+.sub{text-align:center;color:var(--tg-theme-hint-color);font-size:12px;margin:2px 0 10px}
+button{font-family:monospace;font-weight:700;font-size:15px;width:100%;padding:9px 6px;border:1px solid var(--tg-theme-hint-color);border-radius:8px;background:var(--tg-theme-secondary-bg-color);color:var(--tg-theme-text-color);touch-action:none}
+button:active{background:var(--tg-theme-button-color);color:var(--tg-theme-button-text-color)}
+button[disabled]{opacity:.4}
+.pri{background:var(--tg-theme-button-color);color:var(--tg-theme-button-text-color);border-color:var(--tg-theme-button-color)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid b{display:block;font-size:20px}
+.grid small{display:block;font-size:10px;font-weight:400;color:var(--tg-theme-hint-color)}
+.hd{display:flex;justify-content:space-between;font-size:12px;color:var(--tg-theme-hint-color);margin-bottom:6px}
+.r{display:flex;gap:4px;justify-content:center;margin-bottom:2px}
+.c{width:26px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:13px;font-weight:700;border:1px solid var(--tg-theme-hint-color)}
+.cc{background:#00ff88;border-color:#00ff88;color:#000}
+.cm{background:#4488ff;border-color:#4488ff;color:#fff}
+.cw{background:var(--tg-theme-secondary-bg-color);color:var(--tg-theme-hint-color)}
+.in{display:flex;gap:4px;justify-content:center;margin:7px 0}
+.in .c{height:28px;border-color:var(--tg-theme-button-color)}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:7px}
+.kp button{padding:7px 0;font-size:15px}
+.abs{color:var(--tg-theme-hint-color);text-decoration:line-through}
+.msg{min-height:17px;text-align:center;font-size:12px;font-weight:700;margin:5px 0}
+.win{color:#00a86b}
+.lose{color:var(--tg-theme-destructive-text-color)}
+.warn{color:#e8a000}
+.row{display:flex;gap:8px}
+.row button{flex:1;font-size:12px;padding:8px 4px}
+.lg{display:flex;justify-content:space-around;font-size:10px;color:var(--tg-theme-hint-color);margin-top:7px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:3px}
+.rr{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--tg-theme-hint-color);border-radius:8px;margin-bottom:6px;font-size:12px}
+.rr span{color:var(--tg-theme-hint-color)}
+.mt{margin-top:8px}
+</style>
+<div id="app"></div>
+<script>
+var W=window.TelegramWidget,app=document.getElementById('app'),S={s:'m'},G=[],busy=0,REC=null;
+function P(s){try{return JSON.parse(s)}catch(e){return null}}
+function fmt(t){t=Math.max(0,t|0);return (t/60|0)+':'+('0'+t%60).slice(-2)}
+function hap(k){try{if(!W.HapticFeedback)return;if(k=='w')W.HapticFeedback.notificationOccurred('success');else if(k=='l')W.HapticFeedback.notificationOccurred('error');else W.HapticFeedback.selectionChanged()}catch(e){}}
+function cells(g,f){var h='<div class="r">';for(var i=0;i<g.length;i++)h+='<div class="c c'+f[i]+'">'+g[i]+'</div>';return h+'</div>'}
+function render(){
+var h='';
+if(REC){h='<h1>🏆 РЕКОРДЫ</h1><div class="sub">лучшее время взлома</div>';[3,4,5,6].forEach(function(l){var r=REC[l];h+='<div class="rr"><b>'+l+' цифр</b><span>'+(r?fmt(r.t)+' · '+r.a+' поп.':'— нет —')+'</span></div>'});h+='<button class="mt" data-k="b">НАЗАД</button>'}
+else if(S.s=='m'){h='<h1>🔓 ВЗЛОМАЙ КОД</h1><div class="sub">угадай код из неповторяющихся цифр</div><div class="grid">';[[3,5],[4,6],[5,7],[6,8]].forEach(function(d){h+='<button data-k="s:'+d[0]+'"><b>'+d[0]+'</b><small>'+d[1]+' попыток</small></button>'});h+='</div><button class="mt" data-k="r">🏆 РЕКОРДЫ</button>'}
+else{
+var l=S.l,ab={};S.h.forEach(function(e){var p=e.split(':');for(var i=0;i<p[0].length;i++)if(p[1][i]=='w')ab[p[0][i]]=1});
+h='<div class="hd"><span>Попыток: '+(S.m-S.a)+'/'+S.m+'</span><span id="tm">'+(S.o?fmt(S.tm):fmt(Date.now()/1000-S.t))+'</span></div>';
+S.h.forEach(function(e){var p=e.split(':');h+=cells(p[0],p[1])});
+h+='<div class="in">';for(var i=0;i<l;i++)h+='<div class="c">'+(G[i]!=null?G[i]:'')+'</div>';h+='</div><div class="kp">';
+[1,2,3,4,5,6,7,8,9].forEach(function(d){h+='<button data-k="d'+d+'"'+(ab[d]?' class="abs"':'')+(S.o?' disabled':'')+'>'+d+'</button>'});
+h+='<button data-k="db"'+(S.o?' disabled':'')+'>⌫</button><button data-k="d0"'+(ab[0]?' class="abs"':'')+(S.o?' disabled':'')+'>0</button><button data-k="dc"'+(S.o?' disabled':'')+'>C</button></div>';
+h+='<button class="pri" data-k="go"'+(S.o||busy?' disabled':'')+'>ПРОВЕРИТЬ КОД</button>';
+var m='',cl='';
+if(S.o){if(S.w){m=S.r?'🏆 НОВЫЙ РЕКОРД! '+fmt(S.tm):'✓ КОД ВЗЛОМАН! '+fmt(S.tm);cl='win'}else{m='✗ Код: '+S.c+' · '+fmt(S.tm);cl='lose'}}
+h+='<div class="msg '+cl+'" id="msg">'+m+'</div><div class="row"><button data-k="n">НОВАЯ ИГРА</button><button data-k="m">МЕНЮ</button></div>';
+h+='<div class="lg"><span><span class="dot" style="background:#00ff88"></span>на месте</span><span><span class="dot" style="background:#4488ff"></span>не там</span><span><span class="dot" style="background:var(--tg-theme-secondary-bg-color);border:1px solid var(--tg-theme-hint-color)"></span>нет</span></div>'}
+app.innerHTML=h}
+function warn(t){var m=document.getElementById('msg');if(m){m.textContent=t;m.className='msg warn'}}
+function ask(d){if(busy||!W)return;busy=1;var m=document.getElementById('msg');if(m)m.textContent='…';
+W.request(d).then(function(a){busy=0;var s=P(a&&a.result);
+if(s&&s.e){warn('⚠ Цифры не должны повторяться');return}
+if(s&&s.rec){REC=s.rec}else if(s&&s.s){var was=S.o;S=s;G=[];REC=null;if(s.o&&!was)hap(s.w?'w':'l')}
+render()},function(e){busy=0;render();warn('Сбой: '+(e&&e.code||'?'))})}
+app.addEventListener('click',function(ev){var t=ev.target;while(t&&t!=app&&!(t.dataset&&t.dataset.k))t=t.parentNode;if(!t||t==app)return;var k=t.dataset.k;
+if(k=='b'){REC=null;render();return}
+if(busy)return;
+if(k=='r'||k=='m'||k=='n'){ask(k);return}
+if(k[0]=='s'&&S.s=='m'){ask(k);return}
+if(S.s!='g'||S.o)return;
+if(k=='db'){G.pop();hap('t');render();return}
+if(k=='dc'){G=[];hap('t');render();return}
+if(k[0]=='d'&&k.length==2){var d=+k[1];if(G.indexOf(d)>=0){warn('⚠ Цифры не должны повторяться');hap('l');return}if(G.length<S.l){G.push(d);hap('t');render()}return}
+if(k=='go'){if(G.length<S.l){warn('⚠ Введите все '+S.l+' цифр');hap('l');return}ask('c:'+G.join(''))}});
+if(W){W.onEvent('chatDataChanged',function(){var s=P(W.chatData);if(s&&s.s){S=s;G=[];REC=null;render()}});
+setInterval(function(){if(S.s=='g'&&!S.o){var e=document.getElementById('tm');if(e)e.textContent=fmt(Date.now()/1000-S.t)}},1000);
+try{W.setResizeAnchor('bottom')}catch(e){}
+var s0=P(W.chatData);if(s0&&s0.s)S=s0;render();W.ready()}
+else app.innerHTML='<div class="sub">Виджет работает внутри Telegram</div>'
+</script>
