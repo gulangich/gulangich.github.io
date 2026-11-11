@@ -338,6 +338,9 @@ function showGame() {
 const ATTEMPTS = { 3:5, 4:6, 5:7, 6:8 };
 let len = 4, max = 6, secret = [], attempts = 0, over = false;
 let guess = [], absent = new Set();
+let len = 4, max = 6, secret = [], attempts = 0, over = false;
+let guess = [], absent = new Set();
+let startTime = 0;
 
 const $ = id => document.getElementById(id);
 const buzz = ms => { if (navigator.vibrate) navigator.vibrate(ms); };
@@ -422,8 +425,11 @@ function render(g, r) {
 }
 function end(won) {
   over = true;
-  if (won) { say('✓ КОД ВЗЛОМАН!', 'win'); buzz([40,60,120]); }
-  else     { say('✗ ПОДКЛЮЧЕНИЕ ОТКЛОНЕНО. Код: ' + secret.join(''), 'lose'); buzz(300); }
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const timeStr = elapsed < 60 ? `${elapsed}с` : `${Math.floor(elapsed/60)}м ${elapsed%60}с`;
+  
+  if (won) { say(`✓ КОД ВЗЛОМАН! Время: ${timeStr}`, 'win'); buzz([40,60,120]); }
+  else     { say(`✗ ПОДКЛЮЧЕНИЕ ОТКЛОНЕНО. Код: ${secret.join('')} | Время: ${timeStr}`, 'lose'); buzz(300); }
   $('checkBtn').disabled = true;
   renderCells(); renderKeypad();
 }
@@ -465,6 +471,7 @@ function handleCheck() {
 }
 function start(l) {
   len = l; max = ATTEMPTS[l];
+  startTime = Date.now()
   secret = gen(); attempts = 0; over = false; absent = new Set();
   guess = Array(len).fill(null);
   $('history').innerHTML = '';
