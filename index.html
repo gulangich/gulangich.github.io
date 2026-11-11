@@ -86,6 +86,14 @@
   .legend span { display: flex; align-items: center; gap: 5px; }
   .legend .dot { width: 11px; height: 11px; border-radius: 3px; }
   .legend .g { background: #00ff88; } .legend .b { background: #4488ff; } .legend .w { background: #222; border: 1px solid #555; }
+  body[data-theme="matrix"] .legend .g { background: #00ff41; }
+  body[data-theme="matrix"] .legend .b { background: #aaff00; }
+  body[data-theme="cyber"] .legend .g { background: #ff00aa; }
+  body[data-theme="cyber"] .legend .b { background: #00ffff; }
+  body[data-theme="retro"] .legend .g { background: #ffb000; }
+  body[data-theme="retro"] .legend .b { background: #ff6600; }
+  body[data-theme="steam"] .legend .g { background: linear-gradient(180deg, #6a7a5c, #4c5844); }
+  body[data-theme="steam"] .legend .b { background: linear-gradient(180deg, #c4a855, #9a8440); }
   /* ====== СИСТЕМА ТЕМ ====== */
   :root {
     --bg1: #0a0a1a; --bg2: #000;
@@ -153,22 +161,27 @@
   body[data-theme="steam"] .theme-option { background: #2a2e26; border-color: #5a6450; border-radius: 4px; }
   body[data-theme="steam"] .theme-option.active { border-color: #8a9a7c; }
   body[data-theme="steam"] .theme-close { color: #c4d4b8; border-color: #5a6450; border-radius: 4px; }
-  /* ====== ПОДСКАЗКА ====== */
-  .digit.hint { font-size: 1.2em; }
-  .digit.hint::after {
-    content: attr(data-hint);
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #ffaa00;
-    color: #000;
-    font-size: 0.55em;
-    padding: 1px 4px;
-    border-radius: 6px;
+ /* ====== ПОДСКАЗКА ПОД КНОПКОЙ ====== */
+  .hint-display {
+    display: none;
+    text-align: center;
+    margin: 10px 0;
+    padding: 10px 14px;
+    background: rgba(255, 170, 0, 0.1);
+    border: 1px solid #ffaa00;
+    border-radius: 8px;
+    color: #ffaa00;
+    font-size: 1.05em;
     font-weight: bold;
-    box-shadow: 0 0 8px rgba(255,170,0,.6);
+    letter-spacing: 1px;
+    animation: slideIn 0.3s ease;
   }
-  /* ====== ПАНЕЛЬ ТЕМ ====== */
+  .hint-display.active { display: block; }
+  body[data-theme="matrix"] .hint-display { background: rgba(170,255,0,.1); border-color: #aaff00; color: #aaff00; }
+  body[data-theme="cyber"] .hint-display { background: rgba(0,255,255,.1); border-color: #00ffff; color: #00ffff; }
+  body[data-theme="retro"] .hint-display { background: rgba(255,102,0,.1); border-color: #ff6600; color: #ff6600; }
+  body[data-theme="steam"] .hint-display { background: rgba(196,168,85,.1); border-color: #c4a855; color: #c4a855; }
+ /* ====== ПАНЕЛЬ ТЕМ ====== */
   .theme-toggle {
     position: absolute; top: 15px; right: 15px;
     width: 42px; height: 42px; border-radius: 50%;
@@ -295,6 +308,7 @@
       <button class="key fn" data-key="clear">C</button>
     </div>
     <button class="btn" id="checkBtn">ПРОВЕРИТЬ КОД</button>
+   <div class="hint-display" id="hintDisplay"></div>
     <div class="message" id="message"></div>
     <button class="btn btn-secondary" id="newGameBtn">НОВАЯ ИГРА</button>
     <button class="btn btn-secondary" id="backBtn">← К ВЫБОРУ СЛОЖНОСТИ</button>
@@ -400,20 +414,8 @@ function render(g, r) {
   row.className = 'attempt-row';
   g.forEach((d, i) => {
     const c = document.createElement('div');
-    let cls = 'digit';
-    let hintText = '';
-    if (r[i] === 'hint-gt') {
-      cls += ' misplaced hint';
-      hintText = '>' + d;
-    } else if (r[i] === 'hint-lt') {
-      cls += ' misplaced hint';
-      hintText = '<' + d;
-    } else {
-      cls += ' ' + r[i];
-    }
-    c.className = cls;
+    c.className = 'digit ' + r[i];
     c.textContent = d;
-    if (hintText) c.setAttribute('data-hint', hintText);
     row.appendChild(c);
   });
   const h = $('history'); h.appendChild(row); h.scrollTop = h.scrollHeight;
@@ -430,25 +432,22 @@ function handleCheck() {
   if (guess.includes(null)) { say('⚠ Введите все ' + len + ' цифр'); buzz(40); return; }
   const r = check(guess);
   
+  // Скрываем предыдущую подсказку
+  const hintDisplay = $('hintDisplay');
+  hintDisplay.classList.remove('active');
+  hintDisplay.textContent = '';
+  
   // Подсказка для 1-2 неугаданных позиций
   const correctCount = r.filter(x => x === 'correct').length;
-  const wrongCount = r.filter(x => x === 'wrong').length;
-  const misplacedCount = r.filter(x => x === 'misplaced').length;
-  
-  // Если осталось 1-2 неугаданные позиции (correct + misplaced + wrong = len)
-  if (correctCount >= len - 2 && misplacedCount > 0) {
-    // Находим первую misplaced цифру и даём подсказку
+  if (correctCount >= len - 2) {
     const misplacedIdx = r.findIndex(x => x === 'misplaced');
     if (misplacedIdx !== -1) {
-      // Ищем, где эта цифра должна быть
-      for (let j = 0; j < len; j++) {
-        if (r[j] === 'wrong' && guess[misplacedIdx] === secret[j]) {
-          // Нашли! Цифра misplacedIdx должна быть на позиции j
-          // Сравниваем с текущей позицией
-          const diff = secret[j] - guess[misplacedIdx];
-          r[misplacedIdx] = diff > 0 ? 'hint-gt' : 'hint-lt';
-          break;
-        }
+      const diff = secret[misplacedIdx] - guess[misplacedIdx];
+      if (diff !== 0) {
+        const hintText = (diff > 0 ? '>' : '<') + guess[misplacedIdx];
+        hintDisplay.textContent = '💡 ' + hintText;
+        hintDisplay.classList.add('active');
+        buzz([20, 40, 20]);
       }
     }
   }
@@ -484,6 +483,9 @@ function start(l) {
   $('message').textContent = ''; $('message').className = 'message';
   $('checkBtn').disabled = false;
   buildCells(); renderKeypad();
+   const hintDisplay = $('hintDisplay');
+  hintDisplay.classList.remove('active');
+  hintDisplay.textContent = '';
   showGame();
 }
 
