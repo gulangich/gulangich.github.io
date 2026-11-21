@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔓 Игровая зона</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{--accent:#00ff88;--accent2:#4488ff;--dim:#7f8fa0}
+  body{
+    font-family:'Courier New',monospace;
+    background:radial-gradient(circle at 50% 25%,#0a0a1a 0%,#000 100%);
+    color:var(--accent);min-height:100vh;
+    display:flex;justify-content:center;align-items:center;padding:16px;
+  }
+  .wrap{max-width:720px;width:100%}
+  h1{text-align:center;font-size:1.7em;letter-spacing:3px;margin-bottom:6px;text-shadow:0 0 14px rgba(0,255,136,.6)}
+  .sub{text-align:center;color:var(--dim);font-size:.8em;margin-bottom:28px;letter-spacing:1px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .card{
+    display:flex;flex-direction:column;text-decoration:none;
+    background:linear-gradient(135deg,#0d1a22 0%,#0a1418 100%);
+    border:2px solid var(--accent);border-radius:16px;padding:26px 22px;
+    transition:transform .18s,box-shadow .18s,background .18s;
+    box-shadow:0 0 24px rgba(0,255,136,.15),inset 0 0 20px rgba(0,255,136,.04);
+  }
+  .card:active,.card:hover{transform:translateY(-4px) scale(.99);box-shadow:0 6px 34px rgba(0,255,136,.4)}
+  .card.alt{border-color:var(--accent2)}
+  .card.alt:hover,.card.alt:active{box-shadow:0 6px 34px rgba(68,136,255,.4)}
+  .icon{font-size:2.6em;margin-bottom:14px;filter:drop-shadow(0 0 12px rgba(0,255,136,.5))}
+  .card.alt .icon{filter:drop-shadow(0 0 12px rgba(68,136,255,.5))}
+  .name{font-size:1.3em;font-weight:bold;color:var(--accent);letter-spacing:1px;margin-bottom:8px}
+  .card.alt .name{color:#66aaff}
+  .desc{color:var(--dim);font-size:.82em;line-height:1.6;flex:1}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+  .tag{font-size:.64em;padding:3px 9px;border-radius:9px;background:#14202a;color:var(--dim);border:1px solid #24343e}
+  .play{
+    margin-top:18px;text-align:center;font-weight:bold;letter-spacing:2px;
+    padding:12px;border-radius:10px;background:var(--accent);color:#000;
+    box-shadow:0 0 18px rgba(0,255,136,.4);font-size:.9em;
+  }
+  .card.alt .play{background:var(--accent2);box-shadow:0 0 18px rgba(68,136,255,.4)}
+  .note{text-align:center;color:var(--dim);font-size:.66em;margin-top:26px;line-height:1.6}
+  .note b{color:var(--accent)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🔓 ИГРОВАЯ ЗОНА</h1>
+    <p class="sub">ДВЕ ГОЛОВОЛОМКИ · ОДНА ТЕМА ОФОРМЛЕНИЯ</p>
+
+    <div class="grid">
+      <a class="card" href="guessthecode.html">
+        <div class="icon">🔓</div>
+        <div class="name">ВЗЛОМАЙ КОД</div>
+        <div class="desc">Угадай секретный код по цветным подсказкам. Зелёная цифра — на месте, синяя — есть, но не там. На финише открываются подсказки &gt; и &lt;.</div>
+        <div class="tags">
+          <span class="tag">логика</span>
+          <span class="tag">подсказки</span>
+          <span class="tag">5 тем</span>
+        </div>
+        <div class="play">ИГРАТЬ ▶</div>
+      </a>
+
+      <a class="card alt" href="seq.html">
+        <div class="icon">🧠</div>
+        <div class="name">ПОВТОРИ КОД</div>
+        <div class="desc">Клавиатура подсветит последовательность — запомни и повтори её без ошибок. Настраивай жизни, повторы, длину и скорость показа.</div>
+        <div class="tags">
+          <span class="tag">память</span>
+          <span class="tag">настройки</span>
+          <span class="tag">звук</span>
+        </div>
+        <div class="play">ИГРАТЬ ▶</div>
+      </a>
+    </div>
+
+    <div class="note">Выбранная <b>тема оформления</b> общая для обеих игр и запоминается автоматически.<br>Вернуться к выбору — кнопка «назад» в браузере.</div>
+  </div>
+</body>
+</html>
