@@ -4,13 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, interactive-widget=resizes-content">
 <meta name="color-scheme" content="dark light">
+<meta name="description" content="HubPad — локальный HTML/CSS/JS редактор с живым предпросмотром, деплоем в новую вкладку и скачиванием файлов.">
 <title>HubPad — HTML-редактор в стиле GitHub</title>
 <link id="favicon" rel="icon" href="data:,">
-<link rel="stylesheet" href="css/styles.css">
-<script defer src="js/app.js"></script>
+
+<link id="appCss" rel="stylesheet" href="css/styles.css">
+<script id="appJs" defer src="js/app.js"></script>
+<script>
+/* Отслеживание загрузки внешних ресурсов — нужно для диагностики ниже. */
+window.__hubpadAssets = {cssLoaded:false, cssError:false, jsLoaded:false, jsError:false};
+(function(){
+  var l=document.getElementById('appCss'), s=document.getElementById('appJs');
+  l.addEventListener('load',function(){ window.__hubpadAssets.cssLoaded=true; });
+  l.addEventListener('error',function(){ window.__hubpadAssets.cssError=true; });
+  s.addEventListener('load',function(){ window.__hubpadAssets.jsLoaded=true; });
+  s.addEventListener('error',function(){ window.__hubpadAssets.jsError=true; });
+})();
+</script>
 </head>
 <body>
-<noscript><div style="padding:40px;text-align:center">HubPad требует включённый JavaScript.</div></noscript>
+<noscript>
+  <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:32px;background:#0d1117;color:#e6edf3;font:15px/1.6 -apple-system,'Segoe UI',Helvetica,Arial,sans-serif;text-align:center">
+    HubPad требует включённый JavaScript.
+  </div>
+</noscript>
 
 <div class="app" id="app">
   <!-- ======= ШАПКА ======= -->
@@ -20,19 +37,19 @@
       <span>hubpad</span><span class="sep">/</span><b>playground</b>
       <span class="badge-public">Public</span>
     </div>
-    <button class="star-btn" id="starBtn" title="Отметить проект звездой">
+    <button class="star-btn" id="starBtn" type="button" title="Отметить проект звездой">
       <span class="sb-l" id="starIco"></span><span class="sb-n" id="starCount">128</span>
     </button>
     <div class="spacer"></div>
-    <button class="search-trigger" id="searchTrigger" title="Поиск и команды (Ctrl+K)">
+    <button class="search-trigger" id="searchTrigger" type="button" title="Поиск и команды (Ctrl+K)">
       <span id="searchIco"></span><span class="st-txt">Поиск или команда…</span><kbd>Ctrl K</kbd>
     </button>
     <div class="top-actions">
-      <button class="icon-btn" id="themeBtn" title="Переключить тему" aria-label="Переключить тему"></button>
-      <button class="btn" id="dlBtn" title="Скачать файл с выбранным именем (Ctrl+S)">
+      <button class="icon-btn" id="themeBtn" type="button" title="Переключить тему" aria-label="Переключить тему"></button>
+      <button class="btn" id="dlBtn" type="button" title="Скачать файл с выбранным именем (Ctrl+S)">
         <span id="dlIco"></span><span class="btn-label">Скачать</span><span class="dl-caret" id="dlCaret"></span>
       </button>
-      <button class="btn btn-primary" id="deployBtn" title="Открыть страницу в новой вкладке (Ctrl+Enter)">
+      <button class="btn btn-primary" id="deployBtn" type="button" title="Открыть страницу в новой вкладке (Ctrl+Enter)">
         <span class="btn-label">Открыть</span><span id="deployIco"></span>
       </button>
     </div>
@@ -43,15 +60,15 @@
     <aside class="sidebar" id="sidebar">
       <div class="sb-head">
         <div class="sb-title"><span id="sbFolderIco"></span>Файлы проекта <span class="count-pill" id="sbCount">0</span></div>
-        <button class="icon-btn" id="newFileBtn" title="Новый файл" aria-label="Новый файл"></button>
-        <button class="icon-btn" id="importBtn" title="Импортировать файлы" aria-label="Импортировать файлы"></button>
+        <button class="icon-btn" id="newFileBtn" type="button" title="Новый файл" aria-label="Новый файл"></button>
+        <button class="icon-btn" id="importBtn" type="button" title="Импортировать файлы" aria-label="Импортировать файлы"></button>
       </div>
       <div class="sb-tools">
         <div class="sb-filter-wrap">
-          <input class="field" id="sbFilter" placeholder="Фильтр по имени…" autocomplete="off" spellcheck="false">
-          <button class="icon-btn sb-clear" id="sbClear" title="Очистить фильтр" hidden></button>
+          <input class="field" id="sbFilter" placeholder="Фильтр по имени…" autocomplete="off" spellcheck="false" aria-label="Фильтр файлов по имени">
+          <button class="icon-btn sb-clear" id="sbClear" type="button" title="Очистить фильтр" aria-label="Очистить фильтр" hidden></button>
         </div>
-        <select class="sel" id="sbSort" title="Сортировка файлов">
+        <select class="sel" id="sbSort" title="Сортировка файлов" aria-label="Сортировка файлов">
           <option value="manual">Свой порядок</option>
           <option value="name">По имени</option>
           <option value="updated">По изменению</option>
@@ -60,9 +77,9 @@
       </div>
       <div class="bulk-bar" id="bulkBar" hidden>
         <b id="bulkCount"></b>
-        <button class="btn btn-sm" id="bulkZip" title="Скачать выбранные как .zip"></button>
-        <button class="btn btn-sm btn-danger" id="bulkDel" title="Удалить выбранные"></button>
-        <button class="icon-btn" id="bulkClear" title="Снять выделение" style="width:24px;height:24px"></button>
+        <button class="btn btn-sm" id="bulkZip" type="button" title="Скачать выбранные как .zip"></button>
+        <button class="btn btn-sm btn-danger" id="bulkDel" type="button" title="Удалить выбранные"></button>
+        <button class="icon-btn" id="bulkClear" type="button" title="Снять выделение" aria-label="Снять выделение" style="width:24px;height:24px"></button>
       </div>
       <div class="file-list" id="fileList"></div>
       <div class="sb-foot">
@@ -82,33 +99,33 @@
       <section class="editor-pane" id="editorPane">
         <div class="tabs-row">
           <div class="tabs" id="tabs" role="tablist"></div>
-          <button class="icon-btn tab-add" id="tabAdd" title="Новый файл" aria-label="Новый файл"></button>
+          <button class="icon-btn tab-add" id="tabAdd" type="button" title="Новый файл" aria-label="Новый файл"></button>
         </div>
         <div class="ed-toolbar" id="edToolbar">
-          <button class="icon-btn" id="sidebarBtn" title="Показать/скрыть файлы (Ctrl+B)" aria-pressed="true"></button>
+          <button class="icon-btn" id="sidebarBtn" type="button" title="Показать/скрыть файлы (Ctrl+B)" aria-label="Показать или скрыть панель файлов" aria-pressed="true"></button>
           <div class="crumb">
             <span class="crumb-folder"><span id="crumbFolderIco"></span>playground<span>/</span></span>
-            <button class="crumb-file" id="crumbFile" title="Переименовать файл"><span id="crumbDot" class="f-dot"></span><span id="crumbName">—</span></button>
+            <button class="crumb-file" id="crumbFile" type="button" title="Переименовать файл"><span id="crumbDot" class="f-dot"></span><span id="crumbName">—</span></button>
           </div>
           <div class="tb-group">
-            <button class="icon-btn" id="undoBtn" title="Отменить (Ctrl+Z)"></button>
-            <button class="icon-btn" id="redoBtn" title="Повторить (Ctrl+Shift+Z)"></button>
-            <button class="icon-btn" id="copyBtn" title="Скопировать содержимое файла"></button>
+            <button class="icon-btn" id="undoBtn" type="button" title="Отменить (Ctrl+Z)" aria-label="Отменить"></button>
+            <button class="icon-btn" id="redoBtn" type="button" title="Повторить (Ctrl+Shift+Z)" aria-label="Повторить"></button>
+            <button class="icon-btn" id="copyBtn" type="button" title="Скопировать содержимое файла" aria-label="Скопировать содержимое файла"></button>
           </div>
           <div class="tb-group">
-            <button class="icon-btn" id="wrapBtn" title="Перенос строк (Alt+Z)" aria-pressed="false"></button>
-            <span class="tab-size-wrap"><select class="sel" id="tabSizeSel" title="Ширина отступа">
+            <button class="icon-btn" id="wrapBtn" type="button" title="Перенос строк (Alt+Z)" aria-label="Перенос строк" aria-pressed="false"></button>
+            <span class="tab-size-wrap"><select class="sel" id="tabSizeSel" title="Ширина отступа" aria-label="Ширина отступа">
               <option value="2">Отступ: 2</option><option value="4">Отступ: 4</option>
             </select></span>
-            <button class="icon-btn tb-btn-txt" id="fontMinus" title="Уменьшить шрифт">A−</button>
+            <button class="icon-btn tb-btn-txt" id="fontMinus" type="button" title="Уменьшить шрифт" aria-label="Уменьшить шрифт">A−</button>
             <span class="font-val" id="fontVal">13px</span>
-            <button class="icon-btn tb-btn-txt" id="fontPlus" title="Увеличить шрифт">A+</button>
+            <button class="icon-btn tb-btn-txt" id="fontPlus" type="button" title="Увеличить шрифт" aria-label="Увеличить шрифт">A+</button>
           </div>
           <div class="tb-group">
             <div class="seg" id="layoutSeg" role="group" aria-label="Режим отображения">
-              <button class="seg-btn" data-layout="code" title="Только код"></button>
-              <button class="seg-btn" data-layout="split" title="Код и предпросмотр"></button>
-              <button class="seg-btn" data-layout="preview" title="Только предпросмотр"></button>
+              <button class="seg-btn" type="button" data-layout="code" title="Только код"></button>
+              <button class="seg-btn" type="button" data-layout="split" title="Код и предпросмотр"></button>
+              <button class="seg-btn" type="button" data-layout="preview" title="Только предпросмотр"></button>
             </div>
           </div>
         </div>
@@ -131,8 +148,8 @@
             <h3>Нет открытого файла</h3>
             <p>Создайте новый файл, импортируйте свой или откройте что-нибудь из проекта.</p>
             <div class="empty-actions">
-              <button class="btn btn-primary" id="emptyNewBtn"></button>
-              <button class="btn" id="emptyImportBtn"></button>
+              <button class="btn btn-primary" id="emptyNewBtn" type="button"></button>
+              <button class="btn" id="emptyImportBtn" type="button"></button>
             </div>
             <div class="empty-chips" id="emptyChips"></div>
           </div>
@@ -141,7 +158,7 @@
         <footer class="statusbar">
           <span class="st-item st-branch" id="stBranch" title="Локальный проект"></span>
           <span class="st-item" id="stSaved"><span class="st-dot" id="stDot"></span><span id="stSavedTxt">Сохранено</span></span>
-          <button class="st-item ok" id="stProblems" title="Быстрая проверка кода"></button>
+          <button class="st-item ok" id="stProblems" type="button" title="Быстрая проверка кода"></button>
           <span class="st-spring"></span>
           <span class="st-item" id="stLnCol">Стр 1, кол 1</span>
           <span class="st-item st-sel" id="stSel" hidden></span>
@@ -149,7 +166,7 @@
           <span class="st-item st-enc">UTF-8</span>
           <span class="st-item st-lang" id="stLang">HTML</span>
           <span class="st-item st-size" id="stSize">0 Б</span>
-          <button class="icon-btn" id="helpBtn" title="Горячие клавиши (?)" style="width:24px;height:24px"></button>
+          <button class="icon-btn" id="helpBtn" type="button" title="Горячие клавиши (?)" aria-label="Горячие клавиши" style="width:24px;height:24px"></button>
         </footer>
       </section>
 
@@ -159,20 +176,20 @@
       <section class="preview-pane" id="previewPane">
         <div class="pv-head">
           <span class="pv-title"><span id="pvEye"></span>Предпросмотр</span>
-          <button class="pv-chip" id="pvTargetChip" title="Открыть этот файл в редакторе"><span id="pvChipDot" class="f-dot"></span><span id="pvChipName">—</span></button>
+          <button class="pv-chip" id="pvTargetChip" type="button" title="Открыть этот файл в редакторе"><span id="pvChipDot" class="f-dot"></span><span id="pvChipName">—</span></button>
           <span class="pv-stale" id="pvStale" title="Есть изменения — обновите" hidden></span>
           <span class="spacer"></span>
           <div class="seg" id="pvDeviceSeg" role="group" aria-label="Ширина предпросмотра">
-            <button class="seg-btn" data-device="375" title="Мобильный · 375px"></button>
-            <button class="seg-btn" data-device="768" title="Планшет · 768px"></button>
-            <button class="seg-btn" data-device="auto" title="Во всю ширину"></button>
+            <button class="seg-btn" type="button" data-device="375" title="Мобильный · 375px" aria-label="Мобильная ширина"></button>
+            <button class="seg-btn" type="button" data-device="768" title="Планшет · 768px" aria-label="Ширина планшета"></button>
+            <button class="seg-btn" type="button" data-device="auto" title="Во всю ширину" aria-label="Во всю ширину"></button>
           </div>
           <label class="pv-auto" title="Обновлять предпросмотр при вводе">
-            <button class="switch" id="pvAuto" role="switch" aria-checked="true" aria-label="Автообновление"></button><span>Авто</span>
+            <button class="switch" id="pvAuto" type="button" role="switch" aria-checked="true" aria-label="Автообновление предпросмотра"></button><span>Авто</span>
           </label>
-          <button class="icon-btn" id="pvRefresh" title="Обновить предпросмотр"></button>
-          <button class="icon-btn" id="pvOpen" title="Открыть в новой вкладке (Ctrl+Enter)"></button>
-          <button class="icon-btn" id="pvClose" title="Скрыть предпросмотр"></button>
+          <button class="icon-btn" id="pvRefresh" type="button" title="Обновить предпросмотр" aria-label="Обновить предпросмотр"></button>
+          <button class="icon-btn" id="pvOpen" type="button" title="Открыть в новой вкладке (Ctrl+Enter)" aria-label="Открыть в новой вкладке"></button>
+          <button class="icon-btn" id="pvClose" type="button" title="Скрыть предпросмотр" aria-label="Скрыть предпросмотр"></button>
         </div>
         <div class="pv-stage" id="pvStage">
           <div class="pv-frame" id="pvFrame"><iframe id="pvIframe" title="Предпросмотр страницы" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-downloads"></iframe></div>
@@ -182,7 +199,7 @@
             <div class="empty-ring" id="pvEmptyIco"></div>
             <h3>Нечего показывать</h3>
             <p>Добавьте HTML-страницу, SVG или Markdown — предпросмотр оживёт сам.</p>
-            <div class="empty-actions"><button class="btn btn-primary" id="pvEmptyBtn"></button></div>
+            <div class="empty-actions"><button class="btn btn-primary" id="pvEmptyBtn" type="button"></button></div>
           </div>
         </div>
       </section>
@@ -192,11 +209,11 @@
 
 <!-- ======= СЛОИ ======= -->
 <div class="scrim" id="scrim" hidden></div>
-<div class="modal" id="modal" role="dialog" aria-modal="true" hidden></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Диалог" hidden></div>
 <div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Палитра команд" hidden>
   <div class="pal-input-row">
     <span id="palSearchIco"></span>
-    <input class="pal-input" id="palInput" placeholder="Файл, текст в коде или команда…" autocomplete="off" spellcheck="false">
+    <input class="pal-input" id="palInput" placeholder="Файл, текст в коде или команда…" autocomplete="off" spellcheck="false" aria-label="Поиск файлов и команд">
     <kbd>Esc</kbd>
   </div>
   <div class="pal-list" id="palList"></div>
@@ -215,9 +232,9 @@
     <input type="checkbox" id="dlStandalone">
     <span>Автономная страница — встроить связанные CSS, JS и SVG прямо в файл</span>
   </label>
-  <button class="btn btn-primary btn-block" id="dlGo" style="margin-top:10px"></button>
+  <button class="btn btn-primary btn-block" id="dlGo" type="button" style="margin-top:10px"></button>
   <div class="pop-div"></div>
-  <button class="btn btn-block" id="dlZip"></button>
+  <button class="btn btn-block" id="dlZip" type="button"></button>
   <p class="dl-note" id="dlZipNote"></p>
 </div>
 <div class="pop" id="pop" hidden></div>
@@ -231,5 +248,111 @@
   </div>
 </div>
 <input type="file" id="fileInput" hidden multiple accept=".html,.htm,.css,.js,.mjs,.json,.md,.markdown,.svg,.txt,.xml,.webmanifest">
+
+<script>
+/* ================================================================
+   Диагностика запуска. Срабатывает ТОЛЬКО если стили или скрипт
+   не подхватились — вместо «сломанной» страницы показывает, что
+   именно не загрузилось, по каким путям и как это починить.
+   На работающую сборку никак не влияет.
+   ================================================================ */
+(function(){
+  var checked=false;
+
+  function abs(p){ try{ return new URL(p, location.href).href; }catch(e){ return p; } }
+
+  function row(ok, title, detail){
+    return '<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #21262d">'
+      + '<span style="width:9px;height:9px;border-radius:50%;flex:none;margin-top:6px;background:'+(ok?'#3fb950':'#f85149')+';box-shadow:0 0 8px '+(ok?'#3fb950':'#f85149')+'"></span>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;font-weight:600;color:#e6edf3">'+title+'</div>'
+      + '<div style="font-size:12px;color:#8b949e;word-break:break-all">'+detail+'</div>'
+      + '</div></div>';
+  }
+
+  function check(){
+    if(checked) return; 
+    var cssOk=false, jsRan=false, initOk=false;
+    try{ cssOk = getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim() !== ''; }catch(e){}
+    var brand=document.getElementById('brand'), list=document.getElementById('fileList');
+    jsRan = !!(brand && brand.childElementCount>0);
+    initOk = !!(list && list.childElementCount>0);
+    if(cssOk && jsRan && initOk){ checked=true; return; }
+    checked=true;
+    show(cssOk, jsRan, initOk);
+  }
+
+  function show(cssOk, jsRan, initOk){
+    var A = window.__hubpadAssets || {};
+    var proto = location.protocol;
+    var reasons=[];
+
+    if(proto==='content:'){
+      reasons.push('Страница открыта через <b>content://</b> (файловый менеджер отдал её как поток). В этом режиме соседние файлы недоступны. Открой index.html как <b>file://</b> или подними локальный сервер и зайди на http://localhost.');
+    }
+    if(!cssOk){
+      reasons.push('Файл <b>css/styles.css</b> не найден или пуст. В него нужно вставить всё, что было между &lt;style&gt; и &lt;/style&gt;, <b>без самих тегов</b>.');
+    }
+    if(!jsRan){
+      reasons.push('Файл <b>js/app.js</b> не запустился. Частая причина — скопированы теги &lt;script&gt; и &lt;/script&gt;: внутри .js их быть не должно. Вторая причина — файл лежит не в папке js/.');
+    }
+    if(jsRan && !initOk){
+      reasons.push('Скрипт загрузился, но инициализация оборвалась. Открой консоль браузера (F12 → Console) и посмотри красную ошибку — обычно это опечатка при копировании.');
+    }
+    if(reasons.length===0){
+      reasons.push('Проверь, что рядом с index.html есть папки <b>css</b> и <b>js</b> с файлами внутри, и что имена написаны в нижнем регистре.');
+    }
+
+    var box=document.createElement('div');
+    box.id='hubpadDiag';
+    box.setAttribute('role','alertdialog');
+    box.setAttribute('aria-label','Диагностика загрузки HubPad');
+    box.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;'
+      +'background:radial-gradient(700px 400px at 15% -10%,rgba(56,139,253,.14),transparent 60%),radial-gradient(700px 400px at 95% 110%,rgba(163,113,247,.12),transparent 60%),#0d1117;'
+      +'font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;color:#e6edf3;overflow:auto';
+
+    box.innerHTML =
+      '<div style="width:560px;max-width:100%;background:#161b22;border:1px solid #30363d;border-radius:14px;'
+      +'box-shadow:0 24px 64px rgba(1,4,9,.7);overflow:hidden">'
+      + '<div style="height:3px;background:linear-gradient(90deg,#58a6ff,#a371f7 40%,#db61a2 70%,#f0883e)"></div>'
+      + '<div style="padding:18px 20px 6px">'
+      +   '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'
+      +     '<span style="display:inline-flex;width:30px;height:30px;border-radius:8px;align-items:center;justify-content:center;background:rgba(248,81,73,.15);color:#f85149;font-size:17px;font-weight:700">!</span>'
+      +     '<h1 style="margin:0;font-size:16px;font-weight:700;letter-spacing:-.01em">HubPad не смог собраться</h1>'
+      +   '</div>'
+      +   '<p style="margin:6px 0 14px;font-size:13px;color:#8b949e">Разметка на месте, но внешние ресурсы подхватились не все. Вот точный статус:</p>'
+      +   row(cssOk, 'css/styles.css ' + (cssOk?'— загружен':'— НЕ загружен'),
+             '<a href="css/styles.css" target="_blank" rel="noopener" style="color:#58a6ff;text-decoration:none">'+abs('css/styles.css')+'</a>')
+      +   row(jsRan, 'js/app.js ' + (jsRan?'— выполнен':'— НЕ выполнен'),
+             '<a href="js/app.js" target="_blank" rel="noopener" style="color:#58a6ff;text-decoration:none">'+abs('js/app.js')+'</a>')
+      +   row(initOk, 'Инициализация редактора ' + (initOk?'— завершена':'— не завершена'),
+             'Протокол страницы: <b style="color:#e6edf3">'+proto+'</b>'+(A.cssError||A.jsError?' · браузер сообщил об ошибке загрузки':''))
+      + '</div>'
+      + '<div style="padding:14px 20px 4px">'
+      +   '<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8b949e;margin-bottom:8px">Что проверить</div>'
+      +   '<ol style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:#c9d1d9">'
+      +     reasons.map(function(r){ return '<li>'+r+'</li>'; }).join('')
+      +   '</ol>'
+      +   '<pre style="margin:14px 0 0;padding:12px 14px;background:#0d1117;border:1px solid #30363d;border-radius:8px;'
+      +     'font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#8b949e;overflow:auto">'
+      + 'hubpad/\n├── index.html\n├── css/\n│   └── styles.css\n└── js/\n    └── app.js</pre>'
+      + '</div>'
+      + '<div style="display:flex;gap:8px;justify-content:flex-end;padding:16px 20px;margin-top:14px;border-top:1px solid #21262d;flex-wrap:wrap">'
+      +   '<button id="hubpadDiagHide" type="button" style="padding:7px 14px;border-radius:6px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font:500 13px inherit;cursor:pointer">Показать страницу как есть</button>'
+      +   '<button id="hubpadDiagRetry" type="button" style="padding:7px 16px;border-radius:6px;border:1px solid rgba(240,246,252,.1);background:#238636;color:#fff;font:600 13px inherit;cursor:pointer">Проверить ещё раз</button>'
+      + '</div>'
+      + '</div>';
+
+    document.body.appendChild(box);
+    document.getElementById('hubpadDiagRetry').addEventListener('click',function(){ location.reload(); });
+    document.getElementById('hubpadDiagHide').addEventListener('click',function(){ box.remove(); });
+    document.getElementById('hubpadDiagRetry').focus();
+  }
+
+  if(document.readyState==='complete') setTimeout(check,120);
+  else window.addEventListener('load',function(){ setTimeout(check,120); });
+  setTimeout(check,3500);
+})();
+</script>
 </body>
 </html>
