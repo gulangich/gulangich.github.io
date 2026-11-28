@@ -361,6 +361,25 @@ button.st-item:hover{background:var(--hover); color:var(--fg)}
 .menu-item.danger:hover{background:var(--danger-subtle)}
 .menu-item .mi-kbd{margin-left:auto}
 .menu-div{height:1px; background:var(--border-muted); margin:5px 4px}
+.proj-btn{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:6px;color:var(--accent);font-size:13px;max-width:180px}
+.proj-btn:hover{background:var(--hover)}
+.proj-btn b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj-btn svg{color:var(--muted)}
+.pop-proj{width:330px;max-width:calc(100vw - 20px);padding:6px}
+.proj-head{display:flex;align-items:center;gap:8px;padding:8px 10px 6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.proj-head span:first-child{flex:1}
+.proj-list{max-height:300px;overflow-y:auto}
+.proj-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;font-size:13px;cursor:pointer}
+.proj-item:hover{background:var(--hover)}
+.proj-item.active{background:var(--accent-subtle)}
+.proj-item .pi-check{width:16px;display:flex;color:var(--accent)}
+.proj-item .pi-main{flex:1;min-width:0}
+.proj-item .pi-name{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj-item .pi-sub{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj-item .pi-more{opacity:0;width:24px;height:24px}
+.proj-item:hover .pi-more,.proj-item.active .pi-more{opacity:1}
+.proj-foot{display:flex;gap:6px;padding:8px 6px 4px;margin-top:6px;border-top:1px solid var(--border-muted)}
+.proj-foot .btn{flex:1;justify-content:center}
 .pop-prob{width:380px; max-width:calc(100vw - 20px)}
 .prob-head{padding:11px 14px; border-bottom:1px solid var(--border-muted); font-size:13px; font-weight:600; display:flex; gap:8px; align-items:center}
 .prob-head small{font-weight:400; color:var(--faint); font-size:11px}
@@ -424,7 +443,9 @@ body.drag-x iframe{pointer-events:none}
   .sidebar{position:fixed; z-index:45; top:0; bottom:0; left:0; width:280px!important; transform:translateX(-102%);
     transition:transform .22s cubic-bezier(.3,1,.4,1); box-shadow:var(--shadow); padding-top:8px}
   .sidebar.open{transform:none}
-  .repo-crumb,.star-btn{display:none}
+  .star-btn{display:none}
+  .repo-crumb>span{display:none}
+  .proj-btn{max-width:110px}
 }
 @media (max-width:700px){
   .btn .btn-label,.dl-caret{display:none}
