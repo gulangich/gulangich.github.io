@@ -56,6 +56,7 @@ const IC = {
   redo:P('M13 6.5H7a4 4 0 0 0 0 8h3')+P('m10 3.5 3 3-3 3'),
   wrap:P('M2.5 4h11M2.5 8h8.5a2.75 2.75 0 0 1 0 5.5H7')+P('M8.5 11.5 6.5 13.5l2 2'),
   copy:'<rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/>'+P('M10.5 3.5v-1h-8v8h1'),
+  paste:'<rect x="3.5" y="3.5" width="9" height="11" rx="1.5"/>'+P('M6 3.5V2h4v1.5')+P('M6 8h4M6 11h3'),
   check:P('m3 8.5 3.5 3.5L13 5'),
   trash:P('M2.5 4.5h11M6.5 2.5h3M4 4.5l.7 9h6.6l.7-9')+P('M6.5 7v4M9.5 7v4'),
   pencil:P('m11.5 2.5 2 2-8 8-2.5.5.5-2.5Z'),
@@ -952,6 +953,14 @@ function renderCode(){
   }
   curGlowLine=-1;
   updateActive();
+  updatePlaceholder();
+}
+function updatePlaceholder(){
+  const ph=$('#edPlaceholder'); if(!ph) return;
+  const f=activeFile();
+  const show=!!f && code.value.length===0 && !S.composing;
+  ph.hidden=!show;
+  if(show) $('#epTitle').textContent='Начните вводить '+langLabel(f.name)+'…';
 }
 function caretLineCol(){
   const v=code.value, p=code.selectionEnd;
@@ -1049,6 +1058,7 @@ function afterEdit(){
   renderCode(); updateStatus(); markDirty(); markPreviewStale(); scheduleCheck();
 }
 function onInput(e){
+  updatePlaceholder();
   if(S.composing) return;
   const f=activeFile(); if(!f) return;
   const it=e.inputType||'insertText';
@@ -1314,6 +1324,8 @@ function updateHeaderButtons(){
   $('#deployBtn').disabled=!t;
   $('#deployBtn').title=t?'Открыть «'+t.name+'» в новой вкладке (Ctrl+Enter)':'Нет страницы для открытия';
   $('#copyBtn').disabled=!f;
+  $('#pasteBtn').disabled=!f;
+  $('#clearBtn').disabled=!f;
   $('#crumbFile').disabled=!f;
   $('#crumbName').textContent=f?f.name:'—';
   const c=f?dotColor(f.name):'transparent';
@@ -1838,6 +1850,8 @@ const pal={items:[],idx:0};
 const COMMANDS=[
   {id:'new',label:'Создать новый файл',icon:'plus',run:()=>openFileModal('new')},
   {id:'dl',label:'Скачать текущий файл…',icon:'download',kbd:'Ctrl S',run:openDownload},
+  {id:'paste',label:'Вставить из буфера обмена',icon:'paste',run:()=>$('#pasteBtn').click()},
+  {id:'clear',label:'Очистить текущий файл',icon:'trash',run:()=>$('#clearBtn').click()},
   {id:'zip',label:'Скачать проект как .zip',icon:'archive',run:()=>$('#dlZip').click()},
   {id:'deploy',label:'Открыть страницу в новой вкладке',icon:'external',kbd:'Ctrl ↵',run:deploy},
   {id:'import',label:'Импортировать файлы…',icon:'upload',run:()=>$('#fileInput').click()},
@@ -2140,7 +2154,7 @@ function bindEvents(){
     const tab=e.target.closest('.tab'); if(!tab) return;
     e.preventDefault(); closeTab(tab.dataset.id);
   });
-  ['undoBtn','redoBtn','wrapBtn','fontMinus','fontPlus','copyBtn'].forEach(id=>{
+  ['undoBtn','redoBtn','wrapBtn','fontMinus','fontPlus','copyBtn','pasteBtn','clearBtn'].forEach(id=>{
     $('#'+id).addEventListener('mousedown',e=>e.preventDefault());
   });
   $('#undoBtn').addEventListener('click',()=>{ undoRedo(-1); code.focus({preventScroll:true}); });
@@ -2172,6 +2186,30 @@ function bindEvents(){
       toast('success','Скопировано '+txt.length+' '+plural(txt.length,['символ','символа','символов']),{timeout:2400});
     }else toast('warn','Не удалось скопировать — выделите текст и нажмите Ctrl+C');
     code.focus({preventScroll:true});
+  $('#pasteBtn').addEventListener('click',async()=>{
+    const f=activeFile(); if(!f) return;
+    const s=code.selectionStart, en=code.selectionEnd;
+    let txt=null;
+    try{ txt=await navigator.clipboard.readText(); }catch(e){}
+    if(txt===null){
+      code.focus({preventScroll:true});
+      toast('warn','Буфер недоступен — нажмите Ctrl+V или «Вставить» долгим нажатием',{timeout:4500});
+      return;
+    }
+    if(!txt){ toast('info','Буфер обмена пуст',{timeout:2200}); return; }
+    const v=code.value;
+    applyEdit(v.slice(0,s)+txt+v.slice(en), s+txt.length, s+txt.length, 'paste');
+    code.focus({preventScroll:true});
+    toast('success','Вставлено '+txt.length+' '+plural(txt.length,['символ','символа','символов']),{timeout:2400});
+  });
+  $('#clearBtn').addEventListener('click',()=>{
+    const f=activeFile(); if(!f) return;
+    if(!code.value){ toast('info','Файл уже пуст',{timeout:2000}); return; }
+    const n=code.value.length;
+    applyEdit('',0,0,'clear');
+    code.focus({preventScroll:true});
+    toast('warn','Очищено '+n+' '+plural(n,['символ','символа','символов']),{timeout:7000,action:{label:'Отменить',fn:()=>undoRedo(-1)}});
+  });
   });
   $$('#layoutSeg .seg-btn').forEach(b=>b.addEventListener('click',()=>setLayout(b.dataset.layout)));
   $('#themeBtn').addEventListener('click',toggleTheme);
@@ -2271,6 +2309,9 @@ function paintIcons(){
   $('#undoBtn').innerHTML=ic('undo');
   $('#redoBtn').innerHTML=ic('redo');
   $('#copyBtn').innerHTML=ic('copy');
+  $('#pasteBtn').innerHTML=ic('paste');
+  $('#epIco').innerHTML=ic('code',14);
+  $('#clearBtn').innerHTML=ic('trash');
   $('#wrapBtn').innerHTML=ic('wrap');
   const segIco={code:'code',split:'split',preview:'eye'}, segLbl={code:'Код',split:'Сплит',preview:'Превью'};
   $$('#layoutSeg .seg-btn').forEach(b=>{ b.innerHTML=ic(segIco[b.dataset.layout],14)+'<span class="seg-label">'+segLbl[b.dataset.layout]+'</span>'; });
