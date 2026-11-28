@@ -246,6 +246,10 @@ kbd,.kbd{font:11px/1 ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monosp
 .tk-fun{color:var(--syn-fun)} .tk-const{color:var(--syn-const)}
 .tk-meta{color:var(--syn-com)} .tk-h{color:var(--syn-attr); font-weight:700} .tk-b{color:var(--fg); font-weight:700}
 .tk-i{font-style:italic} .tk-pun{color:var(--muted)}
+.ws-s{background-image:radial-gradient(circle, var(--faint) 1px, transparent 1.3px);
+  background-size:1ch 100%; background-position:0 center; background-repeat:repeat-x}
+.ws-t{position:relative}
+.ws-t::before{content:"→"; position:absolute; left:0; top:0; color:var(--faint); opacity:.85; pointer-events:none}
 .ed-empty{position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center; background:var(--canvas)}
 .empty-state{text-align:center; padding:24px; max-width:360px}
 .empty-ring{width:76px; height:76px; margin:0 auto 16px; border-radius:50%; display:flex; align-items:center; justify-content:center;
