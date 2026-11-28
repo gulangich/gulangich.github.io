@@ -423,7 +423,7 @@ const KEY = 'hubpad.v1';
 const DEFAULT_PREFS = {theme:'dark', font:13, wrap:false, ws:false, tab:2, layout:'split', sbWidth:264, pvWidth:46,
   sort:'manual', auto:true, device:'auto', starred:false, sidebar:true};
 const S = {
-  files:[], order:[], tabs:[], active:null, prefs:{...DEFAULT_PREFS},
+  files:[], order:[], tabs:[], active:null, projects:[], projectId:null, prefs:{...DEFAULT_PREFS},
   pv:{target:null, stale:false},
   bulk:new Set(), filter:'', problems:[],
   view:new Map(), hist:new Map(), composing:false, storageOK:true, firstRun:false
@@ -432,47 +432,118 @@ const fileById = id => S.files.find(f=>f.id===id) || null;
 const activeFile = () => fileById(S.active);
 const findByName = n => S.files.find(f=>f.name.toLowerCase()===String(n).toLowerCase()) || null;
 
+function normalizeProject(p){
+  const files=(p.files||[]).filter(f=>f&&f.id&&typeof f.name==='string'&&typeof f.content==='string')
+    .map(f=>({id:f.id,name:f.name,content:f.content.replace(/\r\n?/g,'\n'),bytes:bytesOf(f.content),
+      createdAt:f.createdAt||Date.now(),updatedAt:f.updatedAt||Date.now()}));
+  const ids=new Set(files.map(f=>f.id));
+  const order=(p.order||[]).filter(id=>ids.has(id));
+  files.forEach(f=>{ if(!order.includes(f.id)) order.push(f.id); });
+  const tabs=(p.tabs||[]).filter(id=>ids.has(id));
+  return {id:p.id||uid(), name:String(p.name||'Проект').slice(0,48), files, order, tabs,
+    active:ids.has(p.active)?p.active:(tabs[0]||order[0]||null),
+    pvTarget:ids.has(p.pvTarget)?p.pvTarget:null,
+    createdAt:p.createdAt||Date.now(), updatedAt:p.updatedAt||Date.now()};
+}
+function stashProject(){
+  const p=S.projects.find(x=>x.id===S.projectId); if(!p) return;
+  p.files=S.files; p.order=S.order; p.tabs=S.tabs; p.active=S.active; p.pvTarget=S.pv.target;
+}
+function applyProject(p){
+  S.projectId=p.id; S.files=p.files; S.order=p.order; S.tabs=p.tabs; S.active=p.active;
+  S.pv.target=p.pvTarget; S.pv.stale=false; S.problems=[];
+  S.bulk.clear(); S.view.clear(); S.hist.clear();
+  S.filter=''; const fi=$('#sbFilter'); if(fi) fi.value='';
+}
+const slug=s=>String(s).trim().replace(/[^\wа-яё.-]+/gi,'-').replace(/^-+|-+$/g,'')||'project';
+const currentProject=()=>S.projects.find(p=>p.id===S.projectId)||null;
+const projName=()=>{const p=currentProject();return p?p.name:'project';};
+function uniqueProjectName(n){
+  const base=String(n).trim()||'Проект'; let name=base,i=2;
+  while(S.projects.some(p=>p.name.toLowerCase()===name.toLowerCase())) name=base+'-'+(i++);
+  return name;
+}
+function refreshProjectChrome(){
+  const p=currentProject(); if(!p) return;
+  $('#projName').textContent=p.name; $('#sbProjName').textContent=p.name; $('#crumbProj').textContent=p.name;
+  $('#projCount').textContent=S.projects.length+' '+plural(S.projects.length,['проект','проекта','проектов']);
+  document.title='HubPad — '+p.name;
+}
+function afterProjectSwap(focus){
+  refreshProjectChrome(); renderSidebar(); renderTabs();
+  if(S.active&&fileById(S.active)) switchFile(S.active,{focus:!!focus});
+  else if(S.tabs.length) switchFile(S.tabs[0],{focus:!!focus});
+  else emptyEditor();
+  retargetPreview(); rebuildPreview(); runCheck(); markDirty();
+}
+function switchProject(id){
+  if(id===S.projectId) return;
+  stashProject();
+  const p=S.projects.find(x=>x.id===id); if(!p) return;
+  applyProject(p); afterProjectSwap(false);
+  toast('info','Проект: '+p.name,{timeout:2200});
+}
+function createProject(name,withDemo){
+  stashProject();
+  const files=withDemo?seedFiles():[];
+  const p=normalizeProject({name:uniqueProjectName(name),files,order:files.map(f=>f.id),
+    tabs:files.length?[files[0].id]:[],active:files[0]?files[0].id:null,pvTarget:files[0]?files[0].id:null});
+  S.projects.unshift(p); applyProject(p); afterProjectSwap(false);
+  toast('success','Создан проект «'+p.name+'»',{timeout:3000});
+}
+function duplicateProject(p){
+  stashProject();
+  const copy=normalizeProject({name:uniqueProjectName(p.name+'-copy'),files:p.files.map(f=>({...f})),
+    order:[...p.order],tabs:[...p.tabs],active:p.active,pvTarget:p.pvTarget});
+  S.projects.splice(S.projects.indexOf(p)+1,0,copy); markDirty();
+  return copy;
+}
+function deleteProject(p){
+  if(S.projects.length<2){ toast('warn','Нельзя удалить единственный проект'); return; }
+  const i=S.projects.indexOf(p);
+  S.projects.splice(i,1);
+  if(p.id===S.projectId){ applyProject(S.projects[Math.min(i,S.projects.length-1)]); afterProjectSwap(false); }
+  else refreshProjectChrome();
+  markDirty();
+  toast('warn','Удалён проект «'+p.name+'»',{timeout:8000,action:{label:'Отменить',fn:()=>{
+    S.projects.splice(clamp(i,0,S.projects.length),0,p); markDirty();
+    switchProject(p.id); toast('success','Проект восстановлен',{timeout:2200});
+  }}});
+}
 function loadState(){
-  let raw = null;
-  try{ raw = localStorage.getItem(KEY); }catch(e){ S.storageOK=false; }
-  if(raw){
-    try{
-      const d = JSON.parse(raw);
-      if(d && Array.isArray(d.files)){
-        S.files = d.files.filter(f=>f && f.id && typeof f.name==='string' && typeof f.content==='string')
-          .map(f=>({id:f.id,name:f.name,content:f.content.replace(/\r\n?/g,'\n'),bytes:bytesOf(f.content),createdAt:f.createdAt||Date.now(),updatedAt:f.updatedAt||Date.now()}));
-        const ids = new Set(S.files.map(f=>f.id));
-        S.order = (d.order||[]).filter(id=>ids.has(id));
-        S.files.forEach(f=>{ if(!S.order.includes(f.id)) S.order.push(f.id); });
-        S.tabs = (d.tabs||[]).filter(id=>ids.has(id));
-        S.active = ids.has(d.active) ? d.active : (S.tabs[0]||null);
-        S.prefs = {...DEFAULT_PREFS, ...(d.prefs||{})};
-        S.pv.target = ids.has(d.pvTarget) ? d.pvTarget : null;
-        return;
-      }
-    }catch(e){}
+  let d=null;
+  try{ d=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){ S.storageOK=false; }
+  if(d&&Array.isArray(d.projects)&&d.projects.length){
+    S.projects=d.projects.map(normalizeProject);
+    S.prefs={...DEFAULT_PREFS,...(d.prefs||{})};
+    applyProject(S.projects.find(p=>p.id===d.projectId)||S.projects[0]);
+    return;
   }
-  S.firstRun = true;
-  S.files = seedFiles();
-  S.order = S.files.map(f=>f.id);
-  S.tabs = ['seed-index','seed-css','seed-js'];
-  S.active = 'seed-index';
-  S.pv.target = 'seed-index';
+  if(d&&Array.isArray(d.files)){
+    const p=normalizeProject({name:'playground',files:d.files,order:d.order,tabs:d.tabs,active:d.active,pvTarget:d.pvTarget});
+    S.projects=[p]; S.prefs={...DEFAULT_PREFS,...(d.prefs||{})}; applyProject(p);
+    return;
+  }
+  S.firstRun=true;
+  const files=seedFiles();
+  const p=normalizeProject({name:'playground',files,order:files.map(f=>f.id),
+    tabs:['seed-index','seed-css','seed-js'],active:'seed-index',pvTarget:'seed-index'});
+  S.projects=[p]; applyProject(p);
 }
 function persistNow(){
   if(!S.storageOK) return;
+  stashProject();
   try{
-    localStorage.setItem(KEY, JSON.stringify({
-      v:1, files:S.files.map(f=>({id:f.id,name:f.name,content:f.content,createdAt:f.createdAt,updatedAt:f.updatedAt})),
-      order:S.order, tabs:S.tabs, active:S.active, prefs:S.prefs, pvTarget:S.pv.target
-    }));
+    localStorage.setItem(KEY, JSON.stringify({v:2, projectId:S.projectId, prefs:S.prefs,
+      projects:S.projects.map(p=>({id:p.id,name:p.name,createdAt:p.createdAt,updatedAt:p.updatedAt,
+        active:p.active,pvTarget:p.pvTarget,order:p.order,tabs:p.tabs,
+        files:p.files.map(f=>({id:f.id,name:f.name,content:f.content,createdAt:f.createdAt,updatedAt:f.updatedAt}))}))}));
     setSaved('ok');
   }catch(e){
     S.storageOK=false; setSaved('off');
     toast('warn','Автосохранение недоступно — изменения живут только в этой вкладке');
   }
 }
-const scheduleSave = debounce(()=>{ persistNow(); updateSidebarMeta(); }, 500);
 function markDirty(){ setSaved('saving'); scheduleSave(); }
 function setSaved(state){
   const dot=$('#stDot'), txt=$('#stSavedTxt');
@@ -1268,6 +1339,7 @@ function displayFiles(){
   return list;
 }
 function renderSidebar(){
+  refreshProjectChrome();
   const list=$('#fileList');
   const files=displayFiles();
   $('#sbCount').textContent=S.files.length;
@@ -1611,6 +1683,90 @@ function openFileModal(mode, file){
   });
   check();
 }
+function openProjectModal(mode,proj){
+  const isNew=mode==='new'; let demo=false;
+  const m=showModal(
+    '<div class="modal-head">'+ic(isNew?'plus':'pencil')+'<h2>'+(isNew?'Новый проект':'Переименовать проект')+'</h2>'
+    +'<button class="icon-btn" data-close aria-label="Закрыть">'+ic('x')+'</button></div>'
+    +'<form id="pmForm"><div class="modal-body">'
+    +'<label class="field-label" for="pmName">Название</label>'
+    +'<input class="field" id="pmName" data-autofocus autocomplete="off" spellcheck="false" placeholder="например, landing" value="'+(isNew?'':escA(proj.name))+'">'
+    +'<div class="field-hint" id="pmHint"></div>'
+    +(isNew?'<div class="tpl-grid" id="pmTpls">'
+      +'<button type="button" class="tpl-opt on" data-demo="0"><span>'+ic('file')+'</span><span><b>Пустой</b><small>с нуля</small></span></button>'
+      +'<button type="button" class="tpl-opt" data-demo="1"><span>'+ic('code')+'</span><span><b>Pulse</b><small>демо-сайт</small></span></button></div>':'')
+    +'</div><div class="modal-foot"><button type="button" class="btn" data-close>Отмена</button>'
+    +'<button type="submit" class="btn btn-primary" id="pmGo">'+(isNew?'Создать проект':'Сохранить')+'</button></div></form>');
+  const inp=m.querySelector('#pmName'), hint=m.querySelector('#pmHint'), go=m.querySelector('#pmGo');
+  const check=()=>{
+    const n=inp.value.trim();
+    const dup=n&&S.projects.some(p=>p.name.toLowerCase()===n.toLowerCase()&&(!proj||p.id!==proj.id));
+    const err=!n?'Введите название':n.length>48?'Максимум 48 символов':dup?'Такое название уже занято':'';
+    inp.classList.toggle('err',!!err&&!!n); go.disabled=!!err;
+    hint.className='field-hint'+(err&&n?' err':''); hint.textContent=err||(isNew?'Проект хранится локально рядом с остальными':'Текущее название: '+proj.name);
+  };
+  inp.addEventListener('input',check);
+  if(isNew) m.querySelector('#pmTpls').addEventListener('click',e=>{
+    const b=e.target.closest('.tpl-opt'); if(!b) return;
+    demo=b.dataset.demo==='1';
+    m.querySelectorAll('.tpl-opt').forEach(x=>x.classList.toggle('on',x===b));
+    if(!inp.value.trim()&&demo){ inp.value='pulse'; check(); }
+  });
+  m.querySelector('#pmForm').addEventListener('submit',e=>{
+    e.preventDefault(); const n=inp.value.trim(); if(!n||go.disabled) return;
+    closeTop();
+    if(isNew) createProject(n,demo);
+    else{ proj.name=n; proj.updatedAt=Date.now(); refreshProjectChrome(); markDirty(); toast('success','Переименовано в «'+n+'»',{timeout:2500}); }
+  });
+  check();
+}
+function openProjectMenu(p,anchor){
+  const el=$('#pop'); el.className='pop pop-menu';
+  el.innerHTML='<button class="menu-item" data-a="open">'+ic('folder')+'Открыть</button>'
+    +'<button class="menu-item" data-a="rename">'+ic('pencil')+'Переименовать</button>'
+    +'<button class="menu-item" data-a="dup">'+ic('copy')+'Дублировать</button>'
+    +'<button class="menu-item" data-a="zip">'+ic('archive')+'Скачать .zip</button>'
+    +'<div class="menu-div"></div>'
+    +'<button class="menu-item danger" data-a="del">'+ic('trash')+'Удалить проект</button>';
+  el.querySelectorAll('.menu-item').forEach(b=>b.addEventListener('click',()=>{
+    const a=b.dataset.a; closePop();
+    if(a==='open') switchProject(p.id);
+    else if(a==='rename') openProjectModal('rename',p);
+    else if(a==='dup'){ const c=duplicateProject(p); switchProject(c.id); }
+    else if(a==='zip'){
+      const files=p.order.map(id=>p.files.find(f=>f.id===id)).filter(Boolean);
+      if(!files.length){ toast('warn','Проект пуст'); return; }
+      zipFiles(files,slug(p.name)+'.zip'); toast('success','Скачан '+slug(p.name)+'.zip',{timeout:3200});
+    }
+    else if(a==='del') deleteProject(p);
+  }));
+  openPopEl('menu',el,anchor,'right');
+}
+function openProjects(){
+  if(popKind==='proj'){ closePop(); return; }
+  const el=$('#pop'); el.className='pop pop-proj';
+  el.innerHTML='<div class="proj-head"><span>Проекты</span><span class="count-pill">'+S.projects.length+'</span></div>'
+    +'<div class="proj-list">'+S.projects.map(p=>{
+      const n=p.files.length, size=p.files.reduce((a,f)=>a+f.bytes,0), on=p.id===S.projectId;
+      return '<div class="proj-item'+(on?' active':'')+'" data-id="'+p.id+'">'
+        +'<span class="pi-check">'+(on?ic('check',14):'')+'</span>'
+        +'<div class="pi-main"><div class="pi-name">'+esc(p.name)+'</div>'
+        +'<div class="pi-sub">'+n+' '+plural(n,['файл','файла','файлов'])+' · '+fmtSize(size)+' · '+relTime(p.updatedAt)+'</div></div>'
+        +'<button class="icon-btn pi-more" title="Действия с проектом">'+ic('dots')+'</button></div>';
+    }).join('')+'</div>'
+    +'<div class="proj-foot"><button class="btn btn-sm btn-primary" data-p="new">'+ic('plus',13)+'Новый</button>'
+    +'<button class="btn btn-sm" data-p="dup">'+ic('copy',13)+'Дублировать</button></div>';
+  el.querySelector('.proj-list').addEventListener('click',e=>{
+    const row=e.target.closest('.proj-item'); if(!row) return;
+    const p=S.projects.find(x=>x.id===row.dataset.id); if(!p) return;
+    const more=e.target.closest('.pi-more');
+    if(more){ openProjectMenu(p,more); return; }
+    closePop(); switchProject(p.id);
+  });
+  el.querySelector('[data-p="new"]').addEventListener('click',()=>{ closePop(); openProjectModal('new'); });
+  el.querySelector('[data-p="dup"]').addEventListener('click',()=>{ closePop(); switchProject(duplicateProject(currentProject()).id); });
+  openPopEl('proj',el,$('#projBtn'),'left');
+}
 function shortcutsModal(){
   const row=(keys,desc)=>'<div class="keys">'+keys.map(k=>'<kbd>'+k+'</kbd>').join('')+'</div><div>'+desc+'</div>';
   showModal(
@@ -1763,9 +1919,9 @@ $('#dlName').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefau
 $('#dlGo').addEventListener('click',downloadCurrent);
 $('#dlZip').addEventListener('click',()=>{
   if(!S.files.length){ toast('warn','Проект пуст'); return; }
-  zipFiles(S.order.map(fileById).filter(Boolean),'playground.zip');
+  zipFiles(S.order.map(fileById).filter(Boolean),slug(projName())+'.zip');
   closePop();
-  toast('success','Проект скачан как playground.zip',{timeout:3500});
+  toast('success','Проект скачан как '+slug(projName())+'.zip',{timeout:3500});
 });
 /* меню файла */
 function openFileMenu(f,anchor){
@@ -1873,11 +2029,15 @@ const COMMANDS=[
   {id:'code',label:'Режим: только код',icon:'code',run:()=>setLayout('code')},
   {id:'preview',label:'Режим: только предпросмотр',icon:'eye',run:()=>setLayout('preview')},
   {id:'ws',label:'Показывать пробелы и табы',icon:'pilcrow',run:()=>$('#wsBtn').click()},
+  {id:'projects',label:'Проекты: список и переключение',icon:'folder',kbd:'Ctrl Alt P',run:openProjects},
+  {id:'pnew',label:'Создать новый проект',icon:'plus',run:()=>openProjectModal('new')},
+  {id:'prename',label:'Переименовать текущий проект',icon:'pencil',run:()=>openProjectModal('rename',currentProject())},
+  {id:'pdup',label:'Дублировать текущий проект',icon:'copy',run:()=>switchProject(duplicateProject(currentProject()).id)},
   {id:'keys',label:'Горячие клавиши',icon:'keyboard',kbd:'?',run:shortcutsModal},
   {id:'legal',label:'О проекте и дисклеймер',icon:'info',run:()=>legalModal()},
-  {id:'reset',label:'Сбросить демо-проект',icon:'refresh',danger:true,run:()=>confirmModal({
-    title:'Сбросить проект?',text:'Все файлы будут заменены исходным демо-проектом Pulse. Ваши изменения потеряются.',
-    label:'Сбросить',onConfirm:()=>{ try{localStorage.removeItem(KEY);sessionStorage.setItem('hubpad-reset','1');}catch(e){} location.reload(); }})}
+  {id:'reset',label:'Добавить демо-проект Pulse',icon:'refresh',run:()=>confirmModal({
+    title:'Добавить демо-проект?',text:'Будет создан отдельный проект с исходными файлами Pulse. Существующие проекты не изменятся.',
+    label:'Добавить',onConfirm:()=>createProject('pulse',true)})}
 ];
 function openPalette(){
   const p=$('#palette');
@@ -2154,8 +2314,8 @@ function bindEvents(){
   $('#bulkZip').addEventListener('click',()=>{
     const files=Array.from(S.bulk).map(fileById).filter(Boolean);
     if(!files.length) return;
-    zipFiles(files,'hubpad-selection.zip');
-    toast('success','Выбранные файлы скачаны как hubpad-selection.zip',{timeout:3500});
+    zipFiles(files,slug(projName())+'-selection.zip');
+    toast('success','Выбранные файлы скачаны как slug(projName())+'-selection.zip'',{timeout:3500});
   });
   $('#tabs').addEventListener('click',e=>{
     const tab=e.target.closest('.tab'); if(!tab) return;
@@ -2235,6 +2395,7 @@ function bindEvents(){
   $('#dlBtn').addEventListener('click',openDownload);
   $('#deployBtn').addEventListener('click',deploy);
   $('#searchTrigger').addEventListener('click',openPalette);
+  $('#projBtn').addEventListener('click',openProjects);
   $('#helpBtn').addEventListener('click',shortcutsModal);
   $('#legalBtn').addEventListener('click',legalModal);
   $('#starBtn').addEventListener('click',()=>{
@@ -2286,6 +2447,7 @@ function bindEvents(){
     if(mod&&e.key.toLowerCase()==='s'){ e.preventDefault(); downloadCurrent(); return; }
     if(mod&&e.key==='Enter'){ e.preventDefault(); deploy(); return; }
     if(mod&&e.key.toLowerCase()==='b'){ e.preventDefault(); toggleSidebar(); return; }
+    if(mod&&e.altKey&&e.key.toLowerCase()==='p'){ e.preventDefault(); openProjects(); return; }
     if(e.altKey&&!mod&&e.key.toLowerCase()==='w'){ e.preventDefault(); $('#wsBtn').click(); return; }
     if(e.altKey&&!mod&&e.key.toLowerCase()==='z'){ e.preventDefault(); $('#wrapBtn').click(); return; }
     const tag=(e.target.tagName||'').toLowerCase();
@@ -2315,6 +2477,7 @@ function paintIcons(){
   $('#searchIco').innerHTML=ic('search',14);
   $('#dlIco').innerHTML=ic('download',14);
   $('#dlCaret').innerHTML=ic('chevD',10);
+  $('#projCaret').innerHTML=ic('chevD',10);
   $('#deployIco').innerHTML=ic('external',14);
   $('#sbFolderIco').innerHTML=ic('folder',15);
   $('#newFileBtn').innerHTML=ic('plus');
