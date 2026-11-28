@@ -34,8 +34,9 @@ window.__hubpadAssets = {cssLoaded:false, cssError:false, jsLoaded:false, jsErro
   <header class="topbar">
     <div class="brand" id="brand"></div>
     <div class="repo-crumb">
-      <span>hubpad</span><span class="sep">/</span><b>playground</b>
-      <span class="badge-public">Public</span>
+      <span>hubpad</span><span class="sep">/</span>
+      <button class="proj-btn" id="projBtn" title="Проекты (Ctrl+Alt+P)"><b id="projName">playground</b><span id="projCaret"></span></button>
+      <span class="badge-public" id="projCount">1 проект</span>
     </div>
     <button class="star-btn" id="starBtn" type="button" title="Отметить проект звездой">
       <span class="sb-l" id="starIco"></span><span class="sb-n" id="starCount">128</span>
@@ -59,7 +60,7 @@ window.__hubpadAssets = {cssLoaded:false, cssError:false, jsLoaded:false, jsErro
     <!-- ======= САЙДБАР ======= -->
     <aside class="sidebar" id="sidebar">
       <div class="sb-head">
-        <div class="sb-title"><span id="sbFolderIco"></span>Файлы проекта <span class="count-pill" id="sbCount">0</span></div>
+        <div class="sb-title"><span id="sbFolderIco"></span><span id="sbProjName">playground</span> <span class="count-pill" id="sbCount">0</span></div>
         <button class="icon-btn" id="newFileBtn" type="button" title="Новый файл" aria-label="Новый файл"></button>
         <button class="icon-btn" id="importBtn" type="button" title="Импортировать файлы" aria-label="Импортировать файлы"></button>
       </div>
@@ -104,7 +105,7 @@ window.__hubpadAssets = {cssLoaded:false, cssError:false, jsLoaded:false, jsErro
         <div class="ed-toolbar" id="edToolbar">
           <button class="icon-btn" id="sidebarBtn" type="button" title="Показать/скрыть файлы (Ctrl+B)" aria-label="Показать или скрыть панель файлов" aria-pressed="true"></button>
           <div class="crumb">
-            <span class="crumb-folder"><span id="crumbFolderIco"></span>playground<span>/</span></span>
+            <span class="crumb-folder"><span id="crumbFolderIco"></span><span id="crumbProj">playground</span><span>/</span></span>
             <button class="crumb-file" id="crumbFile" type="button" title="Переименовать файл"><span id="crumbDot" class="f-dot"></span><span id="crumbName">—</span></button>
           </div>
           <div class="tb-group">
