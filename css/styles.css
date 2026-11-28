@@ -234,6 +234,13 @@ kbd,.kbd{font:11px/1 ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monosp
   background:transparent; color:transparent; -webkit-text-fill-color:transparent; caret-color:var(--fg); outline:none}
 .code-input::selection{background:var(--sel); color:transparent; -webkit-text-fill-color:transparent}
 .code-metrics{position:absolute; visibility:hidden; white-space:pre; padding:0; pointer-events:none; top:0; left:0}
+.ed-placeholder{position:absolute; top:12px; left:16px; right:16px; z-index:1; pointer-events:none;
+  display:flex; flex-direction:column; gap:4px; animation:epin .18s ease-out}
+.ep-title{display:flex; align-items:center; gap:8px; color:var(--muted);
+  font:400 var(--code-size)/var(--code-lh) ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
+.ep-title svg{opacity:.6}
+.ep-hint{display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:11.5px; line-height:1.7; color:var(--faint)}
+@keyframes epin{from{opacity:0; transform:translateY(-2px)}}
 .tk-kw{color:var(--syn-kw)} .tk-tag{color:var(--syn-tag)} .tk-attr{color:var(--syn-attr)}
 .tk-str{color:var(--syn-str)} .tk-com{color:var(--syn-com); font-style:italic}
 .tk-fun{color:var(--syn-fun)} .tk-const{color:var(--syn-const)}
