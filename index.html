@@ -138,6 +138,10 @@ window.__hubpadAssets = {cssLoaded:false, cssError:false, jsLoaded:false, jsErro
             <div class="code-wrap" id="codeWrap">
               <div class="active-line" id="activeLine"></div>
               <pre class="hl" id="hl" aria-hidden="true"></pre>
+              <div class="ed-placeholder" id="edPlaceholder" hidden>
+                <span class="ep-title"><span id="epIco"></span><span id="epTitle">Начните вводить код…</span></span>
+                <span class="ep-hint">Печатайте прямо здесь · вставка — <kbd>Ctrl</kbd><kbd>V</kbd> или кнопка «Вставить» на панели</span>
+              </div>
               <textarea class="code-input" id="code" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Редактор кода"></textarea>
               <span class="code-metrics" id="metrics">0000000000</span>
             </div>
@@ -228,7 +232,7 @@ window.__hubpadAssets = {cssLoaded:false, cssError:false, jsLoaded:false, jsErro
 <div class="pop pop-dl" id="dlPop" hidden>
   <h3><span id="dlPopIco"></span>Скачать файл</h3>
   <label class="field-label" for="dlName">Имя файла</label>
-  <input class="field" id="dlName" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="done">
+  <input class="field" id="dlName" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="done" placeholder="например, index.html">
   <div class="field-hint" id="dlHint"></div>
   <label class="dl-standalone" id="dlStandaloneWrap">
     <input type="checkbox" id="dlStandalone">
