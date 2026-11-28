@@ -55,6 +55,7 @@ const IC = {
   undo:P('M3 6.5h6a4 4 0 0 1 0 8H6')+P('M6 3.5 3 6.5l3 3'),
   redo:P('M13 6.5H7a4 4 0 0 0 0 8h3')+P('m10 3.5 3 3-3 3'),
   wrap:P('M2.5 4h11M2.5 8h8.5a2.75 2.75 0 0 1 0 5.5H7')+P('M8.5 11.5 6.5 13.5l2 2'),
+  pilcrow:P('M11 3.5H6.75a2.75 2.75 0 0 0 0 5.5H8.5')+P('M8.5 3.5v9.5M11 3.5v9.5'),
   copy:'<rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/>'+P('M10.5 3.5v-1h-8v8h1'),
   paste:'<rect x="3.5" y="3.5" width="9" height="11" rx="1.5"/>'+P('M6 3.5V2h4v1.5')+P('M6 8h4M6 11h3'),
   check:P('m3 8.5 3.5 3.5L13 5'),
@@ -419,7 +420,7 @@ footer {
 
 /* ---------- состояние ---------- */
 const KEY = 'hubpad.v1';
-const DEFAULT_PREFS = {theme:'dark', font:13, wrap:false, tab:2, layout:'split', sbWidth:264, pvWidth:46,
+const DEFAULT_PREFS = {theme:'dark', font:13, wrap:false, ws:false, tab:2, layout:'split', sbWidth:264, pvWidth:46,
   sort:'manual', auto:true, device:'auto', starred:false, sidebar:true};
 const S = {
   files:[], order:[], tabs:[], active:null, prefs:{...DEFAULT_PREFS},
@@ -604,6 +605,15 @@ function mdLines(src){
     h=h.replace(/^(\s*)([-*+]|\d+\.)(\s)/, '$1<span class="tk-kw">$2</span>$3');
     return h;
   });
+}
+function wsMark(html){
+  if(!S.prefs.ws||!html) return html;
+  return html.split(/(<[^>]*>)/g).map(seg=>{
+    if(seg[0]==='<') return seg;
+    return seg.replace(/(\t+)|( +)/g,(m,t,s)=>t
+      ? '<span class="ws-t">'+t+'</span>'
+      : '<span class="ws-s">'+s+'</span>');
+  }).join('');
 }
 function highlight(content, lang){
   if(lang==='md') return mdLines(content);
@@ -934,6 +944,7 @@ function applyEditorPrefs(){
   edScroll.classList.toggle('wrap',S.prefs.wrap);
   code.setAttribute('wrap',S.prefs.wrap?'soft':'off');
   $('#wrapBtn').setAttribute('aria-pressed',String(S.prefs.wrap));
+  $('#wsBtn').setAttribute('aria-pressed',String(S.prefs.ws));
   $('#fontVal').textContent=S.prefs.font+'px';
   $('#tabSizeSel').value=String(S.prefs.tab);
   $('#stIndent').textContent='Пробелы: '+S.prefs.tab;
@@ -944,7 +955,7 @@ function renderCode(){
   const f=activeFile();
   const content=code.value;
   const lines=highlight(content, f?langOf(f.name):'plain');
-  hl.innerHTML=lines.map(h=>'<div class="code-line">'+(h||'\u200b')+'</div>').join('');
+  hl.innerHTML=lines.map(h=>'<div class="code-line">'+(wsMark(h)||'\u200b')+'</div>').join('');
   gutter.innerHTML=lines.map((_,i)=>'<div class="gl">'+(i+1)+'</div>').join('');
   edScroll.style.setProperty('--gw',Math.max(2,String(lines.length).length));
   if(S.prefs.wrap){
@@ -1331,6 +1342,7 @@ function updateHeaderButtons(){
   const c=f?dotColor(f.name):'transparent';
   $('#crumbDot').style.color=c; $('#crumbDot').style.background=c;
   $('#wrapBtn').disabled=!f;
+  $('#wsBtn').disabled=!f;
   $('#pvOpen').disabled=!t; $('#pvRefresh').disabled=!t;
 }
 function renderProblemsChip(){
@@ -1860,6 +1872,7 @@ const COMMANDS=[
   {id:'split',label:'Режим: код и предпросмотр',icon:'split',run:()=>setLayout('split')},
   {id:'code',label:'Режим: только код',icon:'code',run:()=>setLayout('code')},
   {id:'preview',label:'Режим: только предпросмотр',icon:'eye',run:()=>setLayout('preview')},
+  {id:'ws',label:'Показывать пробелы и табы',icon:'pilcrow',run:()=>$('#wsBtn').click()},
   {id:'keys',label:'Горячие клавиши',icon:'keyboard',kbd:'?',run:shortcutsModal},
   {id:'legal',label:'О проекте и дисклеймер',icon:'info',run:()=>legalModal()},
   {id:'reset',label:'Сбросить демо-проект',icon:'refresh',danger:true,run:()=>confirmModal({
@@ -2154,7 +2167,7 @@ function bindEvents(){
     const tab=e.target.closest('.tab'); if(!tab) return;
     e.preventDefault(); closeTab(tab.dataset.id);
   });
-  ['undoBtn','redoBtn','wrapBtn','fontMinus','fontPlus','copyBtn','pasteBtn','clearBtn'].forEach(id=>{
+  ['undoBtn','redoBtn','wrapBtn','fontMinus','fontPlus','copyBtn','pasteBtn','clearBtn','wsBtn'].forEach(id=>{
     $('#'+id).addEventListener('mousedown',e=>e.preventDefault());
   });
   $('#undoBtn').addEventListener('click',()=>{ undoRedo(-1); code.focus({preventScroll:true}); });
@@ -2163,6 +2176,12 @@ function bindEvents(){
     S.prefs.wrap=!S.prefs.wrap; applyEditorPrefs(); renderCode();
     if(S.prefs.wrap) edScroll.scrollLeft=0;
     markDirty(); code.focus({preventScroll:true});
+  });
+  $('#wsBtn').addEventListener('click',()=>{
+    S.prefs.ws=!S.prefs.ws;
+    $('#wsBtn').setAttribute('aria-pressed',String(S.prefs.ws));
+    renderCode(); markDirty();
+    code.focus({preventScroll:true});
   });
   $('#fontMinus').addEventListener('click',()=>setFont(S.prefs.font-1));
   $('#fontPlus').addEventListener('click',()=>setFont(S.prefs.font+1));
@@ -2267,6 +2286,7 @@ function bindEvents(){
     if(mod&&e.key.toLowerCase()==='s'){ e.preventDefault(); downloadCurrent(); return; }
     if(mod&&e.key==='Enter'){ e.preventDefault(); deploy(); return; }
     if(mod&&e.key.toLowerCase()==='b'){ e.preventDefault(); toggleSidebar(); return; }
+    if(e.altKey&&!mod&&e.key.toLowerCase()==='w'){ e.preventDefault(); $('#wsBtn').click(); return; }
     if(e.altKey&&!mod&&e.key.toLowerCase()==='z'){ e.preventDefault(); $('#wrapBtn').click(); return; }
     const tag=(e.target.tagName||'').toLowerCase();
     const typing=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;
@@ -2313,6 +2333,7 @@ function paintIcons(){
   $('#epIco').innerHTML=ic('code',14);
   $('#clearBtn').innerHTML=ic('trash');
   $('#wrapBtn').innerHTML=ic('wrap');
+  $('#wsBtn').innerHTML=ic('pilcrow');
   const segIco={code:'code',split:'split',preview:'eye'}, segLbl={code:'Код',split:'Сплит',preview:'Превью'};
   $$('#layoutSeg .seg-btn').forEach(b=>{ b.innerHTML=ic(segIco[b.dataset.layout],14)+'<span class="seg-label">'+segLbl[b.dataset.layout]+'</span>'; });
   $('#edEmptyIco').innerHTML=ic('code',28);
